@@ -62,10 +62,10 @@ class accountHandler():
     
 activeAccountTable = {}
 
-def get_list(query):
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    db_path = os.path.join(BASE_DIR, ".database", "data_source.db")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(BASE_DIR, ".database", "data_source.db")
 
+def get_list(query):
     con = sql.connect(db_path)
     con.row_factory = sql.Row
     cur = con.cursor()
