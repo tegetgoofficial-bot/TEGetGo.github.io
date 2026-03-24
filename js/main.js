@@ -1,4 +1,4 @@
-const contactEmail = querySelector(".contact-email")
+const contactEmail = document.querySelectorAll(".contact-email");
 
 function copyEmail() {
   navigator.clipboard.writeText('TEGetGoOfficial@gmail.com');
@@ -8,8 +8,8 @@ function copyEmail() {
   }, 2000);
 }
 
-contactEmail.forEach(email =>)
+contactEmail.forEach(email => {
   email.addEventListener('click', () => {
     copyEmail();
-  
-}
+  });
+});
