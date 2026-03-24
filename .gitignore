@@ -1,4 +1,3 @@
-data_source.db
 __pycache__/
 *.pyc
 .env
