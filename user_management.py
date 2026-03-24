@@ -5,6 +5,7 @@ import re as _re
 from html.entities import html5 as _html5
 import html
 import secrets
+import os
 
 class QueryBuilder:
     def __init__(self, table, columns="*"):
@@ -62,7 +63,10 @@ class accountHandler():
 activeAccountTable = {}
 
 def get_list(query):
-    con = sql.connect(".database/data_source.db")
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(BASE_DIR, ".database", "data_source.db")
+
+    con = sql.connect(db_path)
     con.row_factory = sql.Row
     cur = con.cursor()
     cur.execute(query)
@@ -72,7 +76,10 @@ def get_list(query):
 
 
 def insertUser(username, password, DoB):# I change this part abit, I am pretty sure.
-    con = sql.connect("database_files/database.db")
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(BASE_DIR, ".database", "data_source.db")
+
+    con = sql.connect(db_path)
     cur = con.cursor()
     cur.execute(
         "INSERT INTO users (username,password,dateOfBirth) VALUES (?,?,?)",
