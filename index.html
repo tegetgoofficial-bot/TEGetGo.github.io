@@ -1,1 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta name="referrer" content="no-referrer">
+  <title>TEGetGo — Top Engine, Get Go</title>
+  <meta name="description" content="TEGetGo — Your go-to place for tech, gadgets, books, and game dev resources. Top picks from the get-go.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Syne:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060a12;
+      --bg2: #0b1120;
+      --blue: #2b6fff;
+      --blue-bright: #5b9fff;
+      --blue-glow: rgba(43,111,255,0.25);
+      --white: #e8f0ff;
+      --grey: #8899bb;
+      --card-bg: rgba(255,255,255,0.03);
+      --border: rgba(43,111,255,0.2);
+    }
 
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Syne', sans-serif;
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* CIRCUIT BACKGROUND */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 4rem;
+      background: rgba(6,10,18,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 1.4rem;
+      color: var(--white);
+      text-decoration: none;
+      letter-spacing: 2px;
+    }
+
+    .nav-logo span { color: var(--blue); }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--grey);
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--blue-bright); }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 4rem;
+    }
+
+    .hero-tag {
+      font-size: 0.75rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.2s forwards;
+    }
+
+    .hero h1 {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: clamp(3rem, 10vw, 7rem);
+      line-height: 1;
+      letter-spacing: -1px;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.4s forwards;
+    }
+
+    .hero h1 .te { color: var(--blue); text-shadow: 0 0 40px var(--blue-glow); }
+    .hero h1 .getgo {
+      display: block;
+      color: var(--white);
+      text-shadow: 6px 6px 0 rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .hero-sub {
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+      color: var(--grey);
+      max-width: 500px;
+      line-height: 1.7;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.6s forwards;
+    }
+
+    .hero-btns {
+      margin-top: 3rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.8s forwards;
+    }
+
+    .btn {
+      padding: 0.85rem 2rem;
+      border-radius: 4px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 0 30px var(--blue-glow);
+    }
+
+    .btn-primary:hover {
+      background: var(--blue-bright);
+      box-shadow: 0 0 50px rgba(43,111,255,0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--white);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--blue);
+      color: var(--blue-bright);
+      transform: translateY(-2px);
+    }
+
+    /* GLOW ORB */
+    .glow-orb {
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(43,111,255,0.12) 0%, transparent 70%);
+      pointer-events: none;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* SECTIONS */
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 6rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.7rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .section-desc {
+      color: var(--grey);
+      max-width: 500px;
+      line-height: 1.8;
+      margin-bottom: 3rem;
+    }
+
+    /* CARDS GRID */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--blue), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .card:hover {
+      border-color: var(--blue);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 20px var(--blue-glow);
+    }
+
+    .card:hover::before { opacity: 1; }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .card h3 {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--white);
+    }
+
+    .card p {
+      color: var(--grey);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .card-link {
+      display: inline-block;
+      margin-top: 1.25rem;
+      color: var(--blue-bright);
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .card-link:hover { color: var(--white); }
+
+    /* DIVIDER */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* MARQUEE STRIP */
+    .marquee-wrap {
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      padding: 1rem 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .marquee {
+      display: flex;
+      gap: 3rem;
+      animation: marquee 20s linear infinite;
+      white-space: nowrap;
+    }
+
+    .marquee span {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 3px;
+      color: var(--blue);
+      text-transform: uppercase;
+      opacity: 0.6;
+    }
+
+    .marquee span.dot { color: var(--grey); }
+
+    /* ABOUT STRIP */
+    .about-strip {
+      position: relative;
+      z-index: 1;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 5rem 4rem;
+      display: flex;
+      gap: 4rem;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--blue);
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--grey);
+      margin-top: 0.25rem;
+    }
+
+    /* CONTACT */
+    .contact-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3rem;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .contact-box h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .contact-box p {
+      color: var(--grey);
+      margin-bottom: 2rem;
+      line-height: 1.7;
+    }
+
+    .contact-email {
+      color: var(--blue-bright);
+      text-decoration: none;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      transition: color 0.2s;
+    }
+
+    .contact-email:hover { color: var(--white); }
+
+    /* FOOTER */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--grey);
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+    }
+
+    footer span { color: var(--blue); }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      section { padding: 4rem 1.5rem; }
+      .about-strip { padding: 3rem 1.5rem; gap: 2rem; }
+      .contact-box { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo"><span>TE</span>GetGo</a>
+    <ul class="nav-links">
+      <li><a href="#tech">Tech</a></li>
+      <li><a href="#books">Books</a></li>
+      <li><a href="#gamedev">Game Dev</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="glow-orb"></div>
+    <p class="hero-tag">Top Engine · Get Go · Est. 2025</p>
+    <h1>
+      <span class="te">TE</span><span>Get</span><span class="getgo">Go</span>
+    </h1>
+    <p class="hero-sub">Your top engine for tech picks, useful reads, and game dev resources. Curated from the get-go.</p>
+    <div class="hero-btns">
+      <a href="#tech" class="btn btn-primary">Explore Picks</a>
+      <a href="#contact" class="btn btn-outline">Get In Touch</a>
+    </div>
+  </div>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee">
+      <span>Tech & Gadgets</span><span class="dot">◆</span>
+      <span>Useful Books</span><span class="dot">◆</span>
+      <span>Game Dev Tools</span><span class="dot">◆</span>
+      <span>Affiliate Picks</span><span class="dot">◆</span>
+      <span>Top Engine</span><span class="dot">◆</span>
+      <span>Get Go</span><span class="dot">◆</span>
+      <span>Tech & Gadgets</span><span class="dot">◆</span>
+      <span>Useful Books</span><span class="dot">◆</span>
+      <span>Game Dev Tools</span><span class="dot">◆</span>
+      <span>Affiliate Picks</span><span class="dot">◆</span>
+      <span>Top Engine</span><span class="dot">◆</span>
+      <span>Get Go</span><span class="dot">◆</span>
+    </div>
+  </div>
+
+  <!-- TECH -->
+  <section id="tech">
+    <p class="section-label">// 01 — Tech & Gadgets</p>
+    <h2 class="section-title">Top Tech Picks</h2>
+    <p class="section-desc">Handpicked gadgets and tech that actually make your life better. No fluff, just the good stuff.</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🖥️</div>
+        <h3>Peripherals</h3>
+        <p>Keyboards, mice, monitors and more — the gear that levels up your setup.</p>
+        <a href="#" class="card-link">View picks →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">📱</div>
+        <h3>Mobile & Wearables</h3>
+        <p>Phones, smartwatches, and accessories worth your money.</p>
+        <a href="#" class="card-link">View picks →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Random Finds</h3>
+        <p>Useful gadgets you didn't know existed but can't live without.</p>
+        <a href="#" class="card-link">View picks →</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- BOOKS -->
+  <section id="books">
+    <p class="section-label">// 02 — Books</p>
+    <h2 class="section-title">Useful Reads</h2>
+    <p class="section-desc">Books that actually teach you something. From coding to business to life.</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">💻</div>
+        <h3>Tech & Programming</h3>
+        <p>Learn to code, think like an engineer, and build things that matter.</p>
+        <a href="#" class="card-link">View picks →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">💡</div>
+        <h3>Business & Marketing</h3>
+        <p>Start, grow, and monetize. The books that move the needle.</p>
+        <a href="#" class="card-link">View picks →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧠</div>
+        <h3>Self Development</h3>
+        <p>Think better, work smarter, and build the life you want.</p>
+        <a href="#" class="card-link">View picks →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="about-strip">
+    <div class="stat">
+      <span class="stat-num">24/7</span>
+      <span class="stat-label">Always Online</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">3+</span>
+      <span class="stat-label">Niches Covered</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">100%</span>
+      <span class="stat-label">Honest Reviews</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">0$</span>
+      <span class="stat-label">Cost To Browse</span>
+    </div>
+  </div>
+
+  <!-- GAME DEV -->
+  <section id="gamedev">
+    <p class="section-label">// 03 — Game Dev</p>
+    <h2 class="section-title">Game Dev Resources</h2>
+    <p class="section-desc">Tools, assets, and resources for game developers at every level.</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🎮</div>
+        <h3>Game Engines</h3>
+        <p>Unity, Unreal, Godot and more — find the right engine for your project.</p>
+        <a href="#" class="card-link">View picks →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎨</div>
+        <h3>Assets & Tools</h3>
+        <p>Sprites, sounds, and dev tools to speed up your game development.</p>
+        <a href="#" class="card-link">View picks →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">📖</div>
+        <h3>Courses & Guides</h3>
+        <p>Learn game dev from scratch or level up your existing skills.</p>
+        <a href="#" class="card-link">View picks →</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-box">
+      <h2>Get In Touch</h2>
+      <p>Have a collaboration, partnership, or just want to say hi? Reach out and we'll get back to you from the get-go.</p>
+      <a href="mailto:TEGetGoOfficial@gmail.com" class="contact-email">TEGetGoOfficial@gmail.com</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2025 <span>TEGetGo</span> — Top Engine, Get Go. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
