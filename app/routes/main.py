@@ -19,9 +19,6 @@ def inject_dev_mode():
 @main_bp.route('/component/<path:folder>/<file>/<block>')
 def get_component(folder, file, block):
     template_path = f"{folder}/{file}.html"
-
-    if not request.headers.get('X-Requested-With') == 'XMLHttpRequest' and os.environ.get('RENDER'):
-         abort(404) 
     
     # We pass 'block' as the 'content' variable for your Jinja logic
     return render_template(template_path, content=block)
