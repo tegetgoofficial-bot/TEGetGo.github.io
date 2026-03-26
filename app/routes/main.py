@@ -1,9 +1,30 @@
 print(">>> LOADING main.py FROM:", __file__)
-from flask import Blueprint, render_template, redirect, abort
+from flask import Blueprint, request, render_template, redirect, abort
+from jinja2 import Environment, FileSystemLoader
 from urllib.parse import urlparse
 from .. import db_mannager as dbHandler
+import os
 
 main_bp = Blueprint("main", __name__)
+
+# ─── REACT COMUNICATION ───────────────────────────────────────────────────────────────────
+# Render sets an 'IS_DEPLOEYD' or 'PORT' env var automatically
+IS_DEV = os.environ.get('RENDER') is None 
+
+@main_bp.context_processor
+def inject_dev_mode():
+    return dict(dev_mode=IS_DEV)
+
+# The <path:folder> allows for subfolders like 'layouts/partials'
+@main_bp.route('/component/<path:folder>/<file>/<block>')
+def get_component(folder, file, block):
+    template_path = f"{folder}/{file}.html"
+
+    if not request.headers.get('X-Requested-With') == 'XMLHttpRequest' and os.environ.get('RENDER'):
+         abort(404) 
+    
+    # We pass 'block' as the 'content' variable for your Jinja logic
+    return render_template(template_path, content=block)
 
 # ─── ROUTES ───────────────────────────────────────────────────────────────────
 

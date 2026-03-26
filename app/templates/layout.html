@@ -1,62 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="X-Frame-Options" content="DENY">
-  <meta name="referrer" content="no-referrer">
-  <title>TEGetGo — Top Engine, Get Go</title>
-  <meta name="description" content="TEGetGo — Your go-to place for tech, gadgets, books, and game dev resources. Top picks from the get-go.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Syne:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/Logo.png') }}">
+  {% block head %}{% endblock %}
 </head>
 <body>
-
-  <!-- NAV -->
-  <nav>
-    <a href="#" class="nav-logo"><span>TE</span>GetGo</a>
-    <ul class="nav-links">
-      <li><a href="#tech">Tech</a></li>
-      <li><a href="#books">Books</a></li>
-      <li><a href="#gamedev">Game Dev</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-  </nav>
-
-  <!-- HERO -->
-  <div class="hero">
-    <div class="glow-orb"></div>
-    <p class="hero-tag">Top Engine · Get Go · Est. 2025</p>
-    <h1>
-      <span class="te">TE</span><span>Get</span><span class="getgo">Go</span>
-    </h1>
-    <p class="hero-sub">Your top engine for tech picks, useful reads, and game dev resources. Curated from the get-go.</p>
-    <div class="hero-btns">
-      <a href="#tech" class="btn btn-primary">Explore Picks</a>
-      <a href="#contact" class="btn btn-outline">Get In Touch</a>
-    </div>
-  </div>
-
-  <!-- MARQUEE -->
-  <div class="marquee-wrap">
-    <div class="marquee">
-      <span>Tech & Gadgets</span><span class="dot">◆</span>
-      <span>Useful Books</span><span class="dot">◆</span>
-      <span>Game Dev Tools</span><span class="dot">◆</span>
-      <span>Affiliate Picks</span><span class="dot">◆</span>
-      <span>Top Engine</span><span class="dot">◆</span>
-      <span>Get Go</span><span class="dot">◆</span>
-      <span>Tech & Gadgets</span><span class="dot">◆</span>
-      <span>Useful Books</span><span class="dot">◆</span>
-      <span>Game Dev Tools</span><span class="dot">◆</span>
-      <span>Affiliate Picks</span><span class="dot">◆</span>
-      <span>Top Engine</span><span class="dot">◆</span>
-      <span>Get Go</span><span class="dot">◆</span>
-    </div>
-  </div>
+  {% block layout_content %} {% endblock %}
 
   {% block content %}{% endblock %}
 
@@ -79,6 +27,6 @@
     <p>© 2025 <span>TEGetGo</span> — Top Engine, Get Go. All rights reserved.</p>
   </footer>
 
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block js_script %}{% endblock %}
 </body>
 </html>

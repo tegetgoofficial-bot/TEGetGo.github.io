@@ -1,0 +1,47 @@
+{% if content == "nav" %}
+    <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo"><span>TE</span>GetGo</a>
+    <ul class="nav-links">
+      <li><a href="#tech">Tech</a></li>
+      <li><a href="#books">Books</a></li>
+      <li><a href="#gamedev">Game Dev</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+{% elif content == "hero" %}
+  <!-- HERO -->
+  <div class="hero">
+    <div class="glow-orb"></div>
+    <p class="hero-tag">Top Engine · Get Go · Est. 2025</p>
+    <h1>
+      <span class="te">TE</span><span>Get</span><span class="getgo">Go</span>
+    </h1>
+    <p class="hero-sub">Your top engine for tech picks, useful reads, and game dev resources. Curated from the get-go.</p>
+    <div class="hero-btns">
+      <a href="#tech" class="btn btn-primary">Explore Picks</a>
+      <a href="#contact" class="btn btn-outline">Get In Touch</a>
+    </div>
+  </div>
+{% elif content == "marquee" %}
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee">
+      <span>Tech & Gadgets</span><span class="dot">◆</span>
+      <span>Useful Books</span><span class="dot">◆</span>
+      <span>Game Dev Tools</span><span class="dot">◆</span>
+      <span>Affiliate Picks</span><span class="dot">◆</span>
+      <span>Top Engine</span><span class="dot">◆</span>
+      <span>Get Go</span><span class="dot">◆</span>
+      <span>Tech & Gadgets</span><span class="dot">◆</span>
+      <span>Useful Books</span><span class="dot">◆</span>
+      <span>Game Dev Tools</span><span class="dot">◆</span>
+      <span>Affiliate Picks</span><span class="dot">◆</span>
+      <span>Top Engine</span><span class="dot">◆</span>
+      <span>Get Go</span><span class="dot">◆</span>
+    </div>
+  </div>
+{% else %}
+  <div class="divider"></div>
+{% endif %}
