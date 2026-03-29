@@ -13,38 +13,85 @@ db_path = os.path.join(BASE_DIR, ".database", "data_source.db")
 class QueryBuilder:
     def __init__(self, table, columns="*"):
         self.table = table
-        self.columns = columns
-        self.where = None
-        self.group_by = None
-        self.order_by = None
-        self.limit = None
+        self._columns = columns
+        self._where = []
+        self._joins = []
+        self._group_by = None
+        self._order_by = None
+        self._limit = None
 
-    def set_where(self, clause):
-        self.where = clause
+    def __str__(self):
+        return self.build(reset=False)
+
+    # --- setters ---
+    def set_table(self, new_table):
+        self.table = new_table
+        return self
+
+    def set_columns(self, columns):
+        self._columns = columns or self._columns
+        return self
+
+    def join(self, table, clause):
+        self._joins.append(f"JOIN {table} ON {clause}")
+        return self
+
+    def left_join(self, table, clause):
+        self._joins.append(f"LEFT JOIN {table} ON {clause}")
+        return self
+
+    def right_join(self, table, clause):
+        self._joins.append(f"RIGHT JOIN {table} ON {clause}")
+        return self
+
+    def inner_join(self, table, clause):
+        self._joins.append(f"INNER JOIN {table} ON {clause}")
+        return self
+
+    def add_where(self, clause):
+        self._where.append(clause)
         return self
 
     def set_group_by(self, clause):
-        self.group_by = clause
+        self._group_by = clause
         return self
 
     def set_order_by(self, clause):
-        self.order_by = clause
+        self._order_by = clause
         return self
 
     def set_limit(self, n):
-        self.limit = n
+        self._limit = n
         return self
 
-    def build(self):
-        query = f"SELECT {self.columns} FROM {self.table}"
-        if self.where:
-            query += f" WHERE {self.where}"
-        if self.group_by:
-            query += f" GROUP BY {self.group_by}"
-        if self.order_by:
-            query += f" ORDER BY {self.order_by}"
-        if self.limit:
-            query += f" LIMIT {self.limit}"
+    # --- build ---
+    def build(self, reset=True):
+        query = f"SELECT {self._columns} FROM {self.table}"
+
+        if self._joins:
+            query += " " + " ".join(self._joins)
+        if self._where:
+            query += " WHERE " + " AND ".join(self._where)
+
+        if self._group_by:
+            query += f" GROUP BY {self._group_by}"
+
+        if self._order_by:
+            query += f" ORDER BY {self._order_by}"
+
+        if self._limit:
+            query += f" LIMIT {self._limit}"
+
+        # 2. Reset the 'temporary' filters so the NEXT query starts fresh
+        if reset:
+            self._where = []    # VERY IMPORTANT: Clears old filters
+            self._joins = []    # Clears old joins
+            self._group_by = None
+            self._order_by = None
+            self._limit = None
+            # Leave self.table and self._columns alone if you want 
+            # this builder to always point to the same table.
+        
         return query
 
 # ─── ACCOUNT HANDLER ─────────────────────────────────────────────────────────
@@ -75,11 +122,16 @@ def get_list(query):
     cur = con.cursor()
     try:
         cur.execute(query)
+        data = cur.fetchall()
+        # Convert sqlite3.Row objects into actual Python dictionaries
+        result = [dict(row) for row in data] 
     except Exception as e:
         print("SQL ERROR:", e)
         raise
-    data = cur.fetchall()
-    con.close()
-    return data
+    finally:
+        con.close()
+    
+    return result # This is now a list of standard dicts
+
 
 

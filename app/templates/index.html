@@ -102,17 +102,30 @@
             </div>
         </div>
     </section>
+
+    <!-- GAME DEV -->
+    <section id="teste">
+        <p class="section-label">// 03 — Game Dev</p>
+        <h2 class="section-title">Game Dev Resources</h2>
+        <p class="section-desc">Tools, assets, and resources for game developers at every level.</p>
+        <!-- One container for ALL category links -->
+        <div class="react-target" 
+            data-component="CategoryButtonGroups" 
+            data-props='{{ {"categories": categories} | tojson | safe }}'>
+        </div>
+
+    </section>
 {% endblock %}
 
 {% block header %}
     {% include "assets/header.html" %}
 {% endblock %}
 
+<!-- LAYOUT SECTION (No props needed here, defaults to {}) -->
 {% block layout_content %}
     <div class="react-target" data-folder="layouts" data-file="content" data-component="nav"></div>
     <div class="react-target" data-folder="layouts" data-file="content" data-component="hero"></div>
     <div class="react-target" data-folder="layouts" data-file="content" data-component="marquee"></div>
-
 {% endblock %}
 
 {% block head %}

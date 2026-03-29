@@ -1,0 +1,8 @@
+{% if content == "card" %}
+    <div class="card">
+        <div class="card-icon">{{ icon }}</div>
+        <h3>{{ row['itemType'] }}</h3>
+        <p>{{ row['itemDesc'] }}</p>
+        <a href="/go/{{ row['Item_ID'] }}" class="card-link">View picks →</a>
+    </div>
+{% endif %}
