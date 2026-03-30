@@ -1,6 +1,102 @@
 // HMR Test
 import React, { useState, useEffect, createContext } from 'react';
 import ReactDOM from 'react-dom/client';
+import ReactDOMServer from 'react-dom/server';
+
+
+// ----------------------
+// Helper Functions
+// ----------------------
+const isDictionary = (val) => {
+  return val != null && typeof val === 'object' && !Array.isArray(val);
+};
+
+// ----------------------
+// Category Overlay Component
+// ----------------------
+
+// This makes a link
+const CategoryLink = ({ id, name }) => {
+  // Use data-on-click so React doesn't strip it during renderToString
+  return (
+    <a 
+      href={`/category/${id}`} 
+      data-on-click={`event.preventDefault(); window.dispatchCategorySelect('${id}')`}
+      className="category-link"
+    >
+      {name}
+    </a>
+  );
+};
+
+
+
+const CategoryOverlay = ({ data, onClose }) => {
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <div className="modal-header">
+           <h2>Results for {data.category_name}</h2>
+           <button onClick={onClose}>✕</button>
+        </div>
+
+        <div className="cards-grid">
+          {data.items.map(item => (
+            /* 
+               Instead of hardcoding the card here, 
+               let the JinjaBlock handle the "Skin" and the tags 
+            */
+            <JinjaBlock 
+              key={item.Item_ID}
+              folder="assets" 
+              file="card" 
+              block="popup_card" 
+              // Safety: Ensure all_tags exists so the split doesn't fail
+              props={JSON.stringify({ ...item, all_tags: item.all_tags || "" })} 
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+
+const CategoryButtonGroups = ({ categories, folder, file, block }) => {
+  return (
+    <div className="react-loop-wrapper">
+      {categories.map((cat) => {
+        const linkHtml = ReactDOMServer.renderToString(
+          <CategoryLink 
+            id={cat.Category_ID} 
+            // FIX: Use itemType if Category_Name is missing
+            name={cat.itemType} 
+          />
+        );
+
+        const itemProps = JSON.stringify({
+          id: cat.Category_ID,
+          name: cat.itemType, // Match what your Jinja {{ props.name }} expects
+          type: cat.itemType,
+          link: linkHtml
+        });
+
+        return (
+          <JinjaBlock 
+            key={cat.Category_ID}
+            folder={folder} 
+            file={file} 
+            block={block} 
+            props={itemProps} 
+          />
+        );
+      })}
+    </div>
+  );
+};
+
+
 
 // ----------------------
 // JinjaBlock Component
@@ -20,7 +116,6 @@ const JinjaBlock = ({ folder, file, block, props }) => {
 
   return <div dangerouslySetInnerHTML={{ __html: html }} />;
 };
-
 
 
 // ----------------------
@@ -49,148 +144,102 @@ if (import.meta.env.DEV) {
 // ----------------------
 // Mount Function
 // ----------------------
+const DICTIONARY_MAP = {
+  categories: CategoryButtonGroups, // This matches the 'categories' key in your HTML data-props
+};
+
+
+// Add this above the mountJinjaBlock function
+const rootCache = new Map();
+
 function mountJinjaBlock(el) {
   const { folder, file, component, props: propsRaw } = el.dataset;
-  const props = propsRaw ? JSON.parse(propsRaw) : {};
-  const root = ReactDOM.createRoot(el);
-
-  if (component === "CategoryButtonGroups") {
-    root.render(<CategoryButtonGroups categories={props.categories} />);
-  } 
-  else if (component === "CategoryLink") {
-    // Keep your single link logic too just in case
-    root.render(<CategoryLink {...props} onSelect={(id) => window.dispatchCategorySelect(id)} />);
+  let props = {};
+  
+  try {
+    props = propsRaw ? JSON.parse(propsRaw) : {};
+  } catch (e) {
+    console.error("Failed to parse props", e);
   }
-  else if (folder && file) {
+
+  // 1. Correct Root Management
+  let root = rootCache.get(el);
+  if (!root) {
+    root = ReactDOM.createRoot(el);
+    rootCache.set(el, root);
+  }
+
+  // 2. Identify the Data Key
+  if (isDictionary(props)) {
+    const keys = Object.keys(props);
+    const keyToMatch = keys[0]; // e.g., "categories"
+
+    // 3. Match against your DICTIONARY_MAP
+    if (DICTIONARY_MAP.hasOwnProperty(keyToMatch)) {
+      const ActiveComponent = DICTIONARY_MAP[keyToMatch];
+      root.render(
+        <ActiveComponent 
+          {...props} 
+          folder={folder} 
+          file={file} 
+          block={component} 
+        />
+      );
+      return; 
+    }
+  } 
+  
+  // Fallback for standard blocks
+  if (folder && file && component) {
     root.render(<JinjaBlock folder={folder} file={file} block={component} props={propsRaw} />);
   }
 }
 
-
-// ----------------------
-// Category Overlay Component
-// ----------------------
-
-const CategoryLink = ({ id, name, onSelect }) => {
-  const handleClick = (e) => {
-    e.preventDefault(); // Stop the page from reloading/404ing
-    onSelect(id);       // Tell the parent to show the Overlay
-  };
-
-  return <a href={`/category/${id}`} onClick={handleClick}>{name}</a>;
-};
-
-
-const CategoryOverlay = ({ data, onClose }) => {
-  return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        {/* OPTION A: Header shows the specific category clicked */}
-        <div className="modal-header">
-           <h2>Results for {data.category_name}</h2>
-           <button onClick={onClose}>✕</button>
-        </div>
-
-        <div className="cards-grid">
-          {data.items.map(item => (
-            <div className="pop-card" key={item.Item_ID}>
-              {/* NEW: Image Wrapper for consistent sizing */}
-              <div className="pop-card-img-wrap">
-                <img src={item.image} alt={item.name} />
-              </div>
-
-              <h3>{item.name}</h3>
-              
-              <div className="tag-container">
-                {item.all_tags.split(', ').map(tag => (
-                  <span key={tag} className="tag-pill">{tag}</span>
-                ))}
-              </div>
-
-              <p className="price">${item.cost}</p>
-              <a href={`/go/${item.Item_ID}`} className="btn">Check it out</a>
-            </div>
-          ))}
-
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const CategoryButtonGroups = ({ categories }) => {
-  return (
-    <div className="flex-wrapper"> 
-      {categories.map(cat => (
-        <div key={cat.Category_ID} className="item-wrap">
-          <CategoryLink 
-            id={cat.Category_ID} 
-            name={cat.itemType} 
-            onSelect={(id) => window.dispatchCategorySelect(id)} 
-          />
-        </div>
-      ))}
-    </div>
-  );
-};
-
-
-const handleCategorySelect = (id) => {
-  setLoading(true); // START LOADING
-  document.getElementById('main-content').classList.add('blur-bg');
-  
-  fetch(`/api/category/${id}`)
-    .then(res => res.json())
-    .then(data => {
-      setSelectedData(data);
-      setLoading(false); // STOP LOADING
-    })
-    .catch(() => {
-      setLoading(false);
-      document.getElementById('main-content').classList.remove('blur-bg');
-    });
-};
 
 
 const App = () => {
   const [selectedData, setSelectedData] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // This connects your CategoryLink components to this App's state
-    window.dispatchCategorySelect = (id) => {
-      handleCategorySelect(id);
-    };
-  }, []);
-
+  // MOVE THIS INSIDE THE COMPONENT
   const handleCategorySelect = (id) => {
-    setLoading(true); // Show the "Fetching..." spinner
-    document.getElementById('main-content').classList.add('blur-bg');
+    setLoading(true);
+    document.getElementById('main-content')?.classList.add('blur-bg');
     
     fetch(`/api/category/${id}`)
       .then(res => res.json())
       .then(data => {
         setSelectedData(data);
-        setLoading(false); // Hide spinner
+        setLoading(false);
       })
       .catch((err) => {
         console.error("Fetch error:", err);
         setLoading(false);
-        document.getElementById('main-content').classList.remove('blur-bg');
+        document.getElementById('main-content')?.classList.remove('blur-bg');
       });
   };
 
+  useEffect(() => {
+    // This now correctly calls the internal handleCategorySelect
+    window.dispatchCategorySelect = (id) => {
+      handleCategorySelect(id);
+    };
+
+    if (selectedData) {
+      setTimeout(() => {
+        document.querySelectorAll('.react-target').forEach(mountJinjaBlock);
+      }, 10);
+    }
+  }, [selectedData])
+
   const closeOverlay = () => {
     setSelectedData(null);
-    document.getElementById('main-content').classList.remove('blur-bg');
+    document.getElementById('main-content')?.classList.remove('blur-bg');
   };
 
   return (
     <>
-      {selectedData && (
-        <CategoryOverlay data={selectedData} onClose={closeOverlay} />
-      )}
-      
+      {selectedData && <CategoryOverlay data={selectedData} onClose={closeOverlay} />}
       {loading && (
         <div className="loading-spinner-overlay">
             <div className="spinner">Fetching Picks...</div>
@@ -199,6 +248,7 @@ const App = () => {
     </>
   );
 };
+
 
 
 // ----------------------
@@ -220,4 +270,8 @@ if (overlayRoot) {
 // ----------------------
 // Auto-Scanner
 // ----------------------
-document.querySelectorAll('.react-target').forEach(mountJinjaBlock);
+// AT THE VERY BOTTOM OF main.jsx
+if (!window.__SCANNER_INIT__) {
+  window.__SCANNER_INIT__ = true;
+  document.querySelectorAll('.react-target').forEach(mountJinjaBlock);
+}

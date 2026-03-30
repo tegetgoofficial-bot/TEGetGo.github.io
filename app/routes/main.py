@@ -3,6 +3,7 @@ from flask import Blueprint, json, jsonify, request, render_template, redirect, 
 from jinja2 import Environment, FileSystemLoader
 from urllib.parse import urlparse
 from .. import db_mannager as dbHandler
+from werkzeug.utils import safe_join
 import os
 
 main_bp = Blueprint("main", __name__)
@@ -32,22 +33,41 @@ IS_DEV = os.environ.get('RENDER') is None
 def inject_dev_mode():
     return dict(dev_mode=IS_DEV)
 
+from flask import current_app # Add this import
+from werkzeug.utils import safe_join
+
 @main_bp.route('/component/<path:folder>/<file>/<block>')
 def get_component(folder, file, block):
-    # 1. Get the raw string
-    props_json = request.args.get('props')
+    # 1. Secure the path - Point to the actual app templates folder
+    # This assumes your structure is: /app/templates/
+    base_dir = os.path.join(current_app.root_path, 'templates')
+    
+    # safe_join ensures folder + file stays inside base_dir
+    safe_path = safe_join(base_dir, folder, f"{file}.html")
 
-    # 2. Safety Check: If it's None or just an empty string, use "{}"
-    if not props_json or props_json.strip() == "":
+    if not safe_path or not os.path.exists(safe_path):
+        # Print for debugging so you can see where it's actually looking
+        print(f"DEBUG: Looking for template at {safe_path}") 
+        return "Template not found", 404
+
+    # 2. Get the props
+    props_json = request.args.get('props', '{}')
+    try:
+        props = json.loads(props_json)
+    except:
         props = {}
-    else:
-        try:
-            props = json.loads(props_json)
-        except json.JSONDecodeError:
-            props = {} # Fallback if JSON is malformed
 
-    template_path = f"{folder}/{file}.html"
-    return render_template(template_path, content=block, row=props)
+    # 3. Get the relative path for Jinja
+    # Jinja needs 'folder/file.html', not the full C:\... path
+    jinja_path = os.path.relpath(safe_path, base_dir).replace('\\', '/')
+    
+    return render_template(jinja_path, content=block, props=props)
+
+@main_bp.after_request
+def add_header(response):
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    return response
+
 
 
 # ─── TABLES ───────────────────────────────────────────────────────────────────

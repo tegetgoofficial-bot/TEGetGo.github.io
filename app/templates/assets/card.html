@@ -1,8 +1,42 @@
 {% if content == "card" %}
     <div class="card">
         <div class="card-icon">{{ icon }}</div>
-        <h3>{{ row['itemType'] }}</h3>
-        <p>{{ row['itemDesc'] }}</p>
-        <a href="/go/{{ row['Item_ID'] }}" class="card-link">View picks →</a>
+        {# Switched to dot notation #}
+        <h3>{{ row.itemType }}</h3>
+        <p>{{ row.itemDesc }}</p>
+        <a href="/go/{{ row.Item_ID }}" class="card-link">View picks →</a>
+    </div>
+
+{% elif content == "teste" %}
+    <div class="category-item-card">
+        <h3>{{ props.name }}</h3>
+        <div class="link-container">
+            {# 1. Replace the data-attribute with a real onclick #}
+            {# 2. Use | safe to ensure the browser sees real HTML tags #}
+            {{ props.link | replace('data-on-click=', 'onclick=') | safe }}
+        </div>
+    </div>
+
+{% elif content == "popup_card" %}
+    <div class="pop-card animate-in">
+        <div class="pop-card-img-wrap">
+            <img src="{{ props.image }}" alt="{{ props.name }}">
+        </div>
+
+        <div class="pop-card-info">
+            <h3>{{ props.name }}</h3>
+            
+            <div class="tag-container">
+                {# Use Jinja's split filter to loop tags #}
+                {% for tag in props.all_tags.split(', ') %}
+                    <span class="tag-pill">{{ tag }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="pop-card-footer">
+                <p class="price">${{ props.cost }}</p>
+                <a href="/go/{{ props.Item_ID }}" class="btn">Check it out</a>
+            </div>
+        </div>
     </div>
 {% endif %}

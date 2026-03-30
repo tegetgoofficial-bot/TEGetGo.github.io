@@ -1,11 +1,22 @@
 <!-- Inside app/templates/layouts/js_script.html -->
 {% if dev_mode %}
-    <!-- 1. The Vite Client (Required for HMR) -->
-    <script type="module" src="http://localhost:5173/@vite/client"></script>
-    
-    <!-- 2. Your "Real" JS Entry Point -->
-    <script type="module" src="http://localhost:5173/src/main.jsx"></script>
+    <!-- 1. The Preamble (Required for React HMR) -->
+  <script type="module">
+    import RefreshRuntime from 'http://localhost:5173/@react-refresh'
+    RefreshRuntime.injectIntoGlobalHook(window)
+    window.$RefreshReg$ = () => {}
+    window.$RefreshSig$ = () => (type) => type
+    window.__vite_plugin_react_preamble_installed__ = true
+  </script>
+
+  <!-- 2. The Vite Client -->
+  <script type="module" src="http://localhost:5173/@vite/client"></script>
+
+  <!-- 3. Your React entry point (Update the path to match your project) -->
+  <script type="module" src="http://localhost:5173/src/main.jsx"></script>
 {% else %}
-    <!-- 3. The Optimized Production File for Render -->
+    <!-- Production Build -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='dist/main.css') }}">
     <script type="module" src="{{ url_for('static', filename='dist/main.js') }}"></script>
 {% endif %}
+
