@@ -4,7 +4,7 @@ __pycache__/
 *.py[cod]
 .env
 
-# Node dependencies
+# Node dependencies presented in the project
 node_modules/
 npm-debug.log*
 yarn-debug.log*
