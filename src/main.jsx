@@ -24,7 +24,7 @@ const CategoryLink = ({ id, name }) => {
       data-on-click={`event.preventDefault(); window.dispatchCategorySelect('${id}')`}
       className="category-link"
     >
-      {name}
+     {name}
     </a>
   );
 };
