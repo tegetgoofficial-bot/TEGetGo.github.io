@@ -1,5 +1,5 @@
 print(">>> LOADING main.py FROM:", __file__)
-from flask import Blueprint, json, jsonify, request, render_template, redirect, abort
+from flask import Blueprint, json, make_response, jsonify, request, render_template, redirect, abort
 from jinja2 import Environment, FileSystemLoader
 from urllib.parse import urlparse
 from .. import db_mannager as dbHandler
@@ -86,6 +86,18 @@ def home():
         fromCategories_table.build()
     )
     return render_template("index.html", items=items, categories=categories)
+
+
+@main_bp.route("/api/initial-data")
+def get_initial_data():
+    items = dbHandler.get_list(fromItem_table.build())
+    categories = dbHandler.get_list(fromCategories_table.build())
+    
+    # Return raw data as a clean JSON object
+    return jsonify({
+        "items": items,
+        "categories": categories
+    })
 
 
 @main_bp.route("/api/category/<int:category_id>")

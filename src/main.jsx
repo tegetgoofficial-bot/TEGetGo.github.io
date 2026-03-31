@@ -149,49 +149,34 @@ const DICTIONARY_MAP = {
 };
 
 
-// Add this above the mountJinjaBlock function
-const rootCache = new Map();
-
 function mountJinjaBlock(el) {
+  if (el.getAttribute('data-react-claimed') === 'true') return;
+
   const { folder, file, component, props: propsRaw } = el.dataset;
-  let props = {};
   
   try {
-    props = propsRaw ? JSON.parse(propsRaw) : {};
-  } catch (e) {
-    console.error("Failed to parse props", e);
-  }
-
-  // 1. Correct Root Management
-  let root = rootCache.get(el);
-  if (!root) {
-    root = ReactDOM.createRoot(el);
-    rootCache.set(el, root);
-  }
-
-  // 2. Identify the Data Key
-  if (isDictionary(props)) {
-    const keys = Object.keys(props);
-    const keyToMatch = keys[0]; // e.g., "categories"
-
-    // 3. Match against your DICTIONARY_MAP
-    if (DICTIONARY_MAP.hasOwnProperty(keyToMatch)) {
-      const ActiveComponent = DICTIONARY_MAP[keyToMatch];
-      root.render(
-        <ActiveComponent 
-          {...props} 
-          folder={folder} 
-          file={file} 
-          block={component} 
-        />
-      );
-      return; 
+    // If propsRaw is empty or missing, it will check the API data instead
+    let props = propsRaw ? JSON.parse(propsRaw) : {};
+    
+    // If the component is 'teste' and props are empty, don't mount yet
+    if (component === 'teste' && (!props.categories || props.categories.length === 0)) {
+       return; 
     }
-  } 
-  
-  // Fallback for standard blocks
-  if (folder && file && component) {
-    root.render(<JinjaBlock folder={folder} file={file} block={component} props={propsRaw} />);
+
+    if (!el._reactRoot) {
+      el._reactRoot = ReactDOM.createRoot(el);
+    }
+    el.setAttribute('data-react-claimed', 'true');
+
+    const key = Object.keys(props)[0];
+    if (DICTIONARY_MAP[key]) {
+      const ActiveComponent = DICTIONARY_MAP[key];
+      el._reactRoot.render(<ActiveComponent {...props} folder={folder} file={file} block={component} />);
+    } else {
+      el._reactRoot.render(<JinjaBlock folder={folder} file={file} block={component} props={propsRaw} />);
+    }
+  } catch (e) {
+    console.error("Mount failed:", e);
   }
 }
 
@@ -200,8 +185,10 @@ function mountJinjaBlock(el) {
 const App = () => {
   const [selectedData, setSelectedData] = useState(null);
   const [loading, setLoading] = useState(false);
+  
+  // NEW: Store the categories from the API
+  const [initialData, setInitialData] = useState({ categories: [] });
 
-  // MOVE THIS INSIDE THE COMPONENT
   const handleCategorySelect = (id) => {
     setLoading(true);
     document.getElementById('main-content')?.classList.add('blur-bg');
@@ -219,18 +206,19 @@ const App = () => {
       });
   };
 
+  // NEW: This effect handles the initial data load ONCE
   useEffect(() => {
-    // This now correctly calls the internal handleCategorySelect
-    window.dispatchCategorySelect = (id) => {
-      handleCategorySelect(id);
-    };
+    window.dispatchCategorySelect = (id) => handleCategorySelect(id);
 
-    if (selectedData) {
-      setTimeout(() => {
-        document.querySelectorAll('.react-target').forEach(mountJinjaBlock);
-      }, 10);
-    }
-  }, [selectedData])
+    fetch('/api/initial-data')
+      .then(res => res.json())
+      .then(json => {
+        setInitialData(json);
+        // Once data arrives, tell the scanner to check for the 'teste' section
+        window.dispatchEvent(new Event('initialDataReady'));
+      })
+      .catch(err => console.error("API Error:", err));
+  }, []); // Empty array = run once on load
 
   const closeOverlay = () => {
     setSelectedData(null);
@@ -248,6 +236,7 @@ const App = () => {
     </>
   );
 };
+
 
 
 
@@ -271,7 +260,23 @@ if (overlayRoot) {
 // Auto-Scanner
 // ----------------------
 // AT THE VERY BOTTOM OF main.jsx
-if (!window.__SCANNER_INIT__) {
-  window.__SCANNER_INIT__ = true;
-  document.querySelectorAll('.react-target').forEach(mountJinjaBlock);
+if (!window.__ACTIVE_SCANNER__) {
+  window.__ACTIVE_SCANNER__ = true;
+  
+  const run = () => {
+    document.querySelectorAll('.react-target').forEach(mountJinjaBlock);
+  };
+
+  // Run on load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
+
+  // NEW: Run again when the API data arrives
+  window.addEventListener('initialDataReady', run);
 }
+
+
+
