@@ -22,9 +22,9 @@ const CategoryLink = ({ id, name }) => {
     <a 
       href={`/category/${id}`} 
       data-on-click={`event.preventDefault(); window.dispatchCategorySelect('${id}')`}
-      className="category-link"
+      className="card-link"
     >
-     {name}
+     View picks →
     </a>
   );
 };
@@ -75,12 +75,24 @@ const CategoryButtonGroups = ({ categories, folder, file, block }) => {
           />
         );
 
-        const itemProps = JSON.stringify({
+        // Change 'const' to 'let' so you can overwrite it with the stringified version later
+        let itemProps = ({
           id: cat.Category_ID,
-          name: cat.itemType, // Match what your Jinja {{ props.name }} expects
+          name: cat.itemType, 
           type: cat.itemType,
-          link: linkHtml
+          link: linkHtml,
+          others: {}
         });
+
+        // This loop is now correct for a dictionary
+        for (let key in cat) {
+          if (key !== "Category_ID" && key !== "itemType") {
+            itemProps.others[key] = cat[key];
+          }
+        }
+
+        // Now this reassignment will work instead of crashing
+        itemProps = JSON.stringify(itemProps); 
 
         return (
           <JinjaBlock 
@@ -237,9 +249,6 @@ const App = () => {
   );
 };
 
-
-
-
 // ----------------------
 // Initialization
 // ----------------------
@@ -254,6 +263,38 @@ if (overlayRoot) {
      // This is a bridge to trigger the React state from vanilla JS links
   };
   root.render(<App />);
+}
+
+
+// ----------------------
+// Search Input Logic
+// ----------------------
+function initSearch() {
+  const searchInput = document.querySelector('#searchInput');
+  // Re-select cards inside the function so it finds the ones React just made
+  const cards = document.querySelectorAll('.card'); 
+
+  searchInput.addEventListener('input', () => {
+    const searchValue = searchInput.value.toLowerCase().trim();
+
+    cards.forEach(card => {
+      const name = card.querySelector('.card-name').textContent.toLowerCase();
+      const categories = (card.dataset.category || '').toLowerCase();
+
+      const categoryList = categories ? categories.split(',').map(c => c.trim()) : [];
+
+
+      const matchesName = name.includes(searchValue);
+      const matchesCategory = categoryList.some(c => c.includes(searchValue));
+      
+
+      if (matchesName || matchesCategory) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  });
 }
 
 // ----------------------
@@ -278,5 +319,10 @@ if (!window.__ACTIVE_SCANNER__) {
   window.addEventListener('initialDataReady', run);
 }
 
+// ----------------------
+// After Auto-Scanner
+// ----------------------
 
-
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(initSearch, 500); // Give React 500ms to "paint" the cards
+});

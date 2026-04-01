@@ -8,13 +8,12 @@
     </div>
 
 {% elif content == "teste" %}
-    <div class="category-item-card">
+    <div class="card">
+        <div class="card-icon">{{ props.others.icon }}</div>
+        {# Switched to dot notation #}
         <h3>{{ props.name }}</h3>
-        <div class="link-container">
-            {# 1. Replace the data-attribute with a real onclick #}
-            {# 2. Use | safe to ensure the browser sees real HTML tags #}
-            {{ props.link | replace('data-on-click=', 'onclick=') | safe }}
-        </div>
+        <p>{{ props.others.description }}</p>
+        {{ props.link | replace('data-on-click=', 'onclick=') | safe }}
     </div>
 
 {% elif content == "popup_card" %}
