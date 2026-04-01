@@ -13,7 +13,11 @@
         {# Switched to dot notation #}
         <h3>{{ props.name }}</h3>
         <p>{{ props.others.description }}</p>
-        {{ props.link | replace('data-on-click=', 'onclick=') | safe }}
+        <a 
+        href="/category/{{props.id}}" 
+        onclick="{{props.linkLogic}}" 
+        class="card-link"
+        >View picks →</a>
     </div>
 
 {% elif content == "popup_card" %}
@@ -38,4 +42,6 @@
             </div>
         </div>
     </div>
+{% else %}
+    <div class="divider"></div>
 {% endif %}

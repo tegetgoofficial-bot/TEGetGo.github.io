@@ -65,8 +65,9 @@ const CategoryOverlay = ({ data, onClose }) => {
 
 const CategoryButtonGroups = ({ categories, folder, file, block }) => {
   return (
-    <div className="react-loop-wrapper">
+    <>
       {categories.map((cat) => {
+        const onClickLogic = `event.preventDefault(); window.dispatchCategorySelect('${cat.Category_ID}')`;
         const linkHtml = ReactDOMServer.renderToString(
           <CategoryLink 
             id={cat.Category_ID} 
@@ -81,6 +82,8 @@ const CategoryButtonGroups = ({ categories, folder, file, block }) => {
           name: cat.itemType, 
           type: cat.itemType,
           link: linkHtml,
+          linkLogic: onClickLogic,
+          reactType: "react-loop-wrapper",
           others: {}
         });
 
@@ -104,7 +107,7 @@ const CategoryButtonGroups = ({ categories, folder, file, block }) => {
           />
         );
       })}
-    </div>
+    </>
   );
 };
 

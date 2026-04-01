@@ -330,6 +330,7 @@ section {
 }
 
 
+
 /* DIVIDER */
 .divider {
   width: 100%;
@@ -556,4 +557,43 @@ footer span { color: var(--blue); }
   background-color: #5b9fff; /* Your accent color */
   border-radius: 10px;
   border: 1px solid #111; /* Creates a little "gap" look */
+}
+
+/* Position the header and button */
+.modal-header {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+
+/* The Close Button Style */
+.modal-header button {
+  background: rgba(255, 60, 60, 0.1); /* Subtle red background */
+  color: #ff4d4d; /* Bright red text/icon */
+  border: 1px solid rgba(255, 60, 60, 0.3);
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Orbitron', sans-serif;
+  transition: all 0.2s ease;
+  font-weight: bold;
+}
+
+/* Hover Effect */
+.modal-header button:hover {
+  background: #ff4d4d;
+  color: white;
+  box-shadow: 0 0 15px rgba(255, 77, 77, 0.5);
+  transform: translateY(-2px);
+}
+
+/* REACT SETTUP */
+/* This makes the react container invisible to the grid layout */
+.react-target {
+  display: contents;
 }
