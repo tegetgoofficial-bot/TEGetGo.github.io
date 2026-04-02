@@ -47,7 +47,7 @@ const CategoryOverlay = ({ data, onClose }) => {
                let the JinjaBlock handle the "Skin" and the tags 
             */
             <JinjaBlock 
-              key={item.Item_ID}
+              key={item.item_id}
               folder="assets" 
               file="card" 
               block="popup_card" 
@@ -67,20 +67,20 @@ const CategoryButtonGroups = ({ categories, folder, file, block }) => {
   return (
     <>
       {categories.map((cat) => {
-        const onClickLogic = `event.preventDefault(); window.dispatchCategorySelect('${cat.Category_ID}')`;
+        const onClickLogic = `event.preventDefault(); window.dispatchCategorySelect('${cat.category_id}')`;
         const linkHtml = ReactDOMServer.renderToString(
           <CategoryLink 
-            id={cat.Category_ID} 
+            id={cat.category_id} 
             // FIX: Use itemType if Category_Name is missing
-            name={cat.itemType} 
+            name={cat.item_type} 
           />
         );
 
         // Change 'const' to 'let' so you can overwrite it with the stringified version later
         let itemProps = ({
-          id: cat.Category_ID,
-          name: cat.itemType, 
-          type: cat.itemType,
+          id: cat.category_id,
+          name: cat.item_type, 
+          type: cat.item_type,
           link: linkHtml,
           linkLogic: onClickLogic,
           reactType: "react-loop-wrapper",
@@ -89,7 +89,7 @@ const CategoryButtonGroups = ({ categories, folder, file, block }) => {
 
         // This loop is now correct for a dictionary
         for (let key in cat) {
-          if (key !== "Category_ID" && key !== "itemType") {
+          if (key !== "category_id" && key !== "item_type") {
             itemProps.others[key] = cat[key];
           }
         }
@@ -99,7 +99,7 @@ const CategoryButtonGroups = ({ categories, folder, file, block }) => {
 
         return (
           <JinjaBlock 
-            key={cat.Category_ID}
+            key={cat.category_id}
             folder={folder} 
             file={file} 
             block={block} 

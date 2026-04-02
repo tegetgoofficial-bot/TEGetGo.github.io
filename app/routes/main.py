@@ -71,9 +71,9 @@ def add_header(response):
 
 
 # ─── TABLES ───────────────────────────────────────────────────────────────────
-fromItem_table = dbHandler.QueryBuilder("ITEM")
-fromCategories_table = dbHandler.QueryBuilder("CATEGORIES")
-fromItem_Categories = dbHandler.QueryBuilder("ITEM_CATEGORIES")
+fromItem_table = dbHandler.QueryBuilder("item")
+fromCategories_table = dbHandler.QueryBuilder("categories")
+fromItem_Categories = dbHandler.QueryBuilder("item_categories")
 # ─── ROUTES ───────────────────────────────────────────────────────────────────
 
 @main_bp.route("/")
@@ -102,23 +102,21 @@ def get_initial_data():
 
 @main_bp.route("/api/category/<int:category_id>")
 def get_category_api(category_id):
-    builder = dbHandler.QueryBuilder("ITEM I")
+    # Use simple lowercase for table 'item' and alias 'i'
+    builder = dbHandler.QueryBuilder("item i")
     
-    # MERGED QUERY: 
-    # 1. Joins to get the name of the CURRENT category (Option A)
-    # 2. Uses a subquery to get ALL categories for each item (Option B)
     query = (
         builder.set_columns(
-            "I.Item_ID, I.name, I.cost, I.itemDesc, I.image, I.itemLink, "
-            "C.itemType AS active_category, " # Option A: Current context
-            "(SELECT GROUP_CONCAT(cat.itemType, ', ') " # Option B: All tags
-             "FROM CATEGORIES cat "
-             "JOIN ITEM_CATEGORIES icat ON cat.Category_ID = icat.Category_ID "
-             "WHERE icat.Item_ID = I.Item_ID) AS all_tags"
+            "i.item_id, i.name, i.cost, i.item_desc, i.image, i.item_link, "
+            "c.item_type AS active_category, " 
+            "(SELECT STRING_AGG(cat.item_type, ', ') "
+            " FROM categories cat "
+            " JOIN item_categories icat ON cat.category_id = icat.category_id "
+            " WHERE icat.item_id = i.item_id) AS all_tags"
         )
-        .join("ITEM_CATEGORIES IC", "I.Item_ID = IC.Item_ID")
-        .join("CATEGORIES C", "C.Category_ID = IC.Category_ID")
-        .add_where(f"C.Category_ID = {category_id}")
+        .join("item_categories ic", "i.item_id = ic.item_id")
+        .join("categories c", "c.category_id = ic.category_id")
+        .add_where(f"c.category_id = {category_id}")
         .build()
     )
 
@@ -128,7 +126,7 @@ def get_category_api(category_id):
         return jsonify({"items": [], "category_name": "Category"})
 
     # Get the header name from the 'active_category' column
-    display_name = items[0].get("active_category", "Category")
+    display_name = items[0].get("active_category", "Category") 
 
     return jsonify({
         "items": items,
@@ -141,15 +139,21 @@ def get_category_api(category_id):
 def redirect_link(item_id):
     results = dbHandler.get_list(
         fromItem_table
-        .add_where(f"Item_ID = {item_id}")
+        .add_where(f"item_id = {item_id}")
         .build()
     )
     if not results:
         abort(404)
 
     item = results[0]
-    parsed = urlparse(item["itemLink"])
+    target_url = item.get("item_link") # This is safer!
+    
+    if not target_url:
+        abort(404)
+
+    # Use target_url here too
+    parsed = urlparse(target_url) 
     if parsed.scheme not in ("http", "https"):
         abort(403)
 
-    return redirect(item["itemLink"])
+    return redirect(target_url)

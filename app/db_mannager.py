@@ -1,12 +1,18 @@
 print(">>> LOADING db_mannager FROM:", __file__)
-import sqlite3 as sql
+# import sqlite3 as sql
+from supabase import create_client, Client
 import secrets
 import os
 
 # ─── DATABASE PATH ────────────────────────────────────────────────────────────
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(BASE_DIR, ".database", "data_source.db")
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# db_path = os.path.join(BASE_DIR, ".database", "data_source.db")
+
+# Get these from: Supabase Dashboard > Settings > API
+url: str = os.environ.get("SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_KEY")
+supabase: Client = create_client(url, key)
 
 # ─── QUERY BUILDER ───────────────────────────────────────────────────────────
 
@@ -116,22 +122,46 @@ activeAccountTable = {}
 # ─── DATABASE FUNCTIONS ───────────────────────────────────────────────────────
 
 def get_list(query):
-    print("Executing query:", query)
-    con = sql.connect(db_path)
-    con.row_factory = sql.Row
-    cur = con.cursor()
+    print("Executing Live Query:", query)
     try:
-        cur.execute(query)
-        data = cur.fetchall()
-        # Convert sqlite3.Row objects into actual Python dictionaries
-        result = [dict(row) for row in data] 
+        # This calls the 'exec_sql' function you will add to Supabase below
+        response = supabase.rpc('exec_sql', {'query_text': query}).execute()
+        
+        # Returns a list of dicts, exactly like your old row_factory
+        return response.data if response.data else []
+        
     except Exception as e:
-        print("SQL ERROR:", e)
+        print("LIVE SQL ERROR:", e)
         raise
-    finally:
-        con.close()
-    
-    return result # This is now a list of standard dicts
 
 
+# ─── TESTING ────────────────────────────────────────────────────────────────
+# 1. Initialize your builder for the 'item' table
+builder = QueryBuilder("ITEM")
+query = builder.set_columns("*").set_limit(5).build()
 
+# 2. Try to fetch the data using your new get_list
+try:
+    results = get_list(query)
+    print(f"--- TEST SUCCESS ---")
+    print(f"Found {len(results)} items in Supabase:")
+    for row in results:
+        print(f"ID: {row['Item_ID']} | Name: {row['name']} | Cost: {row['cost']}")
+except Exception as e:
+    print(f"--- TEST FAILED ---")
+    print(f"Error: {e}")
+
+try:
+    # This is equivalent to: SELECT * FROM item WHERE cost > 100 ORDER BY cost DESC LIMIT 5
+    res = (
+        supabase.table("item")
+        .select("*")
+        .gt("cost", 100)          # WHERE cost > 100
+        .order("cost", desc=True) # ORDER BY cost DESC
+        .limit(5)                 # LIMIT 5
+        .execute()
+    )
+    print("SUCCESS:", res.data)
+
+except Exception as e:
+    print("FAILED:", e)

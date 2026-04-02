@@ -4,7 +4,7 @@
         {# Switched to dot notation #}
         <h3>{{ row.itemType }}</h3>
         <p>{{ row.itemDesc }}</p>
-        <a href="/go/{{ row.Item_ID }}" class="card-link">View picks →</a>
+        <a href="/go/{{ row.item_id }}" class="card-link">View picks →</a>
     </div>
 
 {% elif content == "teste" %}
@@ -38,7 +38,7 @@
 
             <div class="pop-card-footer">
                 <p class="price">${{ props.cost }}</p>
-                <a href="/go/{{ props.Item_ID }}" class="btn">Check it out</a>
+                <a href="/go/{{ props.item_id }}" class="btn">Check it out</a>
             </div>
         </div>
     </div>
