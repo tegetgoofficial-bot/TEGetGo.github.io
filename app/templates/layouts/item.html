@@ -1,0 +1,124 @@
+<div class="slideshow-wrapper">
+    <!-- Navigation Arrows -->
+    <button class="nav-btn prev" onclick="moveSlide(-1)">&#10094;</button>
+    <button class="nav-btn next" onclick="moveSlide(1)">&#10095;</button>
+
+    <div class="slideshow-viewport" id="slider">
+        {# Your existing flexible loop goes here #}
+        {% for props in items %}
+            {% set content = "slide" %}
+            <div class="slide-item">
+                <div 
+                    class="react-target" 
+                    data-folder="assets" 
+                    data-file="card" 
+                    data-component="slide" 
+                    data-props='{{ {"props": props} | tojson | safe }}'
+                ></div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- TECH -->
+<section id="tech">
+    <p class="section-label">// 01 — Tech & Gadgets</p>
+    <h2 class="section-title">Top Tech Picks</h2>
+    <p class="section-desc">Handpicked gadgets and tech that actually make your life better. No fluff, just the good stuff.</p>
+    <div class="cards">
+        <div class="card">
+            <div class="card-icon">🖥️</div>
+            <h3>Peripherals</h3>
+            <p>Keyboards, mice, monitors and more — the gear that levels up your setup.</p>
+            <a href="#" class="card-link">View picks →</a>
+        </div>
+        <div class="card">
+            <div class="card-icon">📱</div>
+            <h3>Mobile & Wearables</h3>
+            <p>Phones, smartwatches, and accessories worth your money.</p>
+            <a href="#" class="card-link">View picks →</a>
+        </div>
+        <div class="card">
+            <div class="card-icon">⚡</div>
+            <h3>Random Finds</h3>
+            <p>Useful gadgets you didn't know existed but can't live without.</p>
+            <a href="#" class="card-link">View picks →</a>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- BOOKS -->
+<section id="books">
+    <p class="section-label">// 02 — Books</p>
+    <h2 class="section-title">Useful Reads</h2>
+    <p class="section-desc">Books that actually teach you something. From coding to business to life.</p>
+    <div class="cards">
+        <div class="card">
+            <div class="card-icon">💻</div>
+            <h3>Tech & Programming</h3>
+            <p>Learn to code, think like an engineer, and build things that matter.</p>
+            <a href="#" class="card-link">View picks →</a>
+        </div>
+        <div class="card">
+            <div class="card-icon">💡</div>
+            <h3>Business & Marketing</h3>
+            <p>Start, grow, and monetize. The books that move the needle.</p>
+            <a href="#" class="card-link">View picks →</a>
+        </div>
+        <div class="card">
+            <div class="card-icon">🧠</div>
+            <h3>Self Development</h3>
+            <p>Think better, work smarter, and build the life you want.</p>
+            <a href="#" class="card-link">View picks →</a>
+        </div>
+    </div>
+</section>
+
+<div class="react-target" data-folder="assets" data-file="content" data-component="stats"></div>
+
+<!-- GAME DEV -->
+<section id="gamedev">
+    <p class="section-label">// 03 — Game Dev</p>
+    <h2 class="section-title">Game Dev Resources</h2>
+    <p class="section-desc">Tools, assets, and resources for game developers at every level.</p>
+    <div class="cards">
+        <div class="card">
+            <div class="card-icon">🎮</div>
+            <h3>Game Engines</h3>
+            <p>Unity, Unreal, Godot and more — find the right engine for your project.</p>
+            <a href="#" class="card-link">View picks →</a>
+        </div>
+        <div class="card">
+            <div class="card-icon">🎨</div>
+            <h3>Assets & Tools</h3>
+            <p>Sprites, sounds, and dev tools to speed up your game development.</p>
+            <a href="#" class="card-link">View picks →</a>
+        </div>
+        <div class="card">
+            <div class="card-icon">📖</div>
+            <h3>Courses & Guides</h3>
+            <p>Learn game dev from scratch or level up your existing skills.</p>
+            <a href="#" class="card-link">View picks →</a>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- GAME DEV -->
+<section id="teste">
+    <p class="section-label">// 03 — Game Dev</p>
+    <h2 class="section-title">Game Dev Resources</h2>
+    <p class="section-desc">Tools, assets, and resources for game developers at every level.</p>
+    <!-- One container for ALL category links -->
+    <div class="cards">
+        <div class="react-target"
+            data-folder="assets" 
+            data-file="card" 
+            data-component="category_card" 
+            data-props='{{ {"categories": categories} | tojson | safe }}'>
+        </div>
+    </div>
+</section>

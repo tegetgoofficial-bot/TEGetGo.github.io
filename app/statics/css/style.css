@@ -597,3 +597,239 @@ footer span { color: var(--blue); }
 .react-target {
   display: contents;
 }
+
+/* SLIDE SHOW */
+.promo-card-container {
+    padding: 40px 20px;
+    background: #0a0a0a; /* Deep black for an app feel */
+  }
+
+  .promo-card {
+    max-width: 1100px;
+    height: 500px; /* Fixed height to match the image side */
+    margin: 0 auto;
+    background: #161616;
+    border-radius: 32px; /* Extra round for modern UI */
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid #252525;
+  }
+
+  .promo-content {
+    flex: 1;
+    padding: 60px;
+    z-index: 2;
+    overflow-y: auto;
+  }
+
+  .brand-tag {
+    color: #5b9fff;
+    font-weight: 800;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+  }
+
+  .promo-title {
+    font-size: 3rem;
+    color: white;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    font-weight: 700;
+  }
+
+  .promo-description {
+    color: #a0a0a0;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 35px;
+    max-width: 400px;
+  }
+
+  /* The image side */
+  .promo-visual {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle, rgba(91, 159, 255, 0.1) 0%, rgba(0,0,0,0) 70%);
+  }
+
+  .promo-visual img {
+    max-width: 80%;
+    transform: rotate(-10deg); /* Gives it a dynamic "moving" look */
+    filter: drop-shadow(0 20px 50px rgba(0,0,0,0.5));
+  }
+
+  /* Buttons */
+  .action-row { display: flex; gap: 15px; }
+
+  .btn-main {
+    background: #5b9fff;
+    color: white;
+    padding: 16px 32px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+
+  .btn-sub {
+    color: white;
+    padding: 16px 32px;
+    border: 1px solid #333;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: 0.3s;
+  }
+
+  .btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(91, 159, 255, 0.3); }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .promo-card { flex-direction: column; text-align: center; }
+    .promo-content { padding: 40px 20px; }
+    .promo-visual { padding-bottom: 40px; }
+    .action-row { justify-content: center; }
+  }
+
+  /* 1. Define the animation */
+@keyframes float {
+  0% {
+    transform: translateY(0px) rotate(-10deg); /* Start position */
+  }
+  50% {
+    transform: translateY(-20px) rotate(-8deg); /* Move up 20px and tilt slightly */
+  }
+  100% {
+    transform: translateY(0px) rotate(-10deg); /* Return to start */
+  }
+}
+
+/* 2. Apply it to your image */
+.promo-visual img {
+  max-width: 85%;
+  height: 180px; /* Fixed height for consistency */
+  filter: drop-shadow(0 25px 50px rgba(0,0,0,0.6));
+  object-fit: contain; /* Prevents stretching/distortion */
+
+  
+  /* Animation Settings */
+  animation: float 4s ease-in-out infinite; /* 4 seconds long, smooth, loops forever */
+  will-change: transform; /* Helps browser performance */
+}
+
+
+/* 3. Add a soft pulsing glow behind the product */
+.promo-visual {
+  position: relative;
+  overflow: visible; /* Let the glow spread */
+}
+
+.promo-visual::after {
+  content: "";
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  background: rgba(91, 159, 255, 0.2);
+  filter: blur(80px);
+  border-radius: 50%;
+  z-index: -1;
+  animation: pulse-glow 6s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.5); opacity: 0.8; }
+}
+
+.btn-main:active {
+  transform: scale(0.96); /* Shrinks slightly when clicked */
+  background: #4a8ee6;
+}
+
+.slideshow-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: auto;
+    overflow: hidden; /* Hides the items off-screen */
+  }
+
+  .slideshow-viewport {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); /* Smooth "App" feel */
+    gap: 0; /* Cards will be full width of the wrapper */
+  }
+
+  .slide-item {
+    min-width: 100%; /* Each slide takes up the full container width */
+    flex-shrink: 0;
+  }
+
+  /* Arrow Styling */
+  /* Professional Glassmorphism Navigation */
+  .nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 100;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+
+  
+   .nav-btn:hover {
+    background: #5b9fff; /* Your brand blue */
+    border-color: #5b9fff;
+    box-shadow: 0 0 20px rgba(91, 159, 255, 0.4);
+  }
+  .prev { left: 20px; }
+  .next { right: 20px; }
+
+  /* Ensure your existing promo-card fits perfectly */
+  .promo-card-container { padding: 40px; }
+
+  .slideshow-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: 40px auto;
+    overflow: hidden; /* This acts as the window */
+    border-radius: 32px; /* Matches your "Unreal" card style */
+  }
+
+  .slideshow-viewport {
+    display: flex;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); /* Professional smooth snap */
+    will-change: transform;
+  }
+
+  .slide-item {
+    min-width: 100%; /* Each React card takes the full width of the wrapper */
+    flex-shrink: 0;
+  }
+
+  /* Hide arrows on mobile and enable touch swiping */
+  @media (max-width: 768px) {
+    .nav-btn { display: none; }
+    .slideshow-viewport {
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+    }
+    .slide-item { scroll-snap-align: start; }
+  }

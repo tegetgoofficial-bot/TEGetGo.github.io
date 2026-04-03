@@ -170,29 +170,31 @@ function mountJinjaBlock(el) {
   const { folder, file, component, props: propsRaw } = el.dataset;
   
   try {
-    // If propsRaw is empty or missing, it will check the API data instead
-    let props = propsRaw ? JSON.parse(propsRaw) : {};
-    
-    // If the component is 'teste' and props are empty, don't mount yet
-    if (component === 'teste' && (!props.categories || props.categories.length === 0)) {
-       return; 
-    }
+  let props = propsRaw ? JSON.parse(propsRaw) : {};
+  
+  // 1. Check if the incoming data is wrapped in a "props" key
+  // This handles your <div data-props='{"props": { ... }}'>
+  const actualData = props.props ? props.props : props;
 
-    if (!el._reactRoot) {
-      el._reactRoot = ReactDOM.createRoot(el);
-    }
-    el.setAttribute('data-react-claimed', 'true');
-
-    const key = Object.keys(props)[0];
-    if (DICTIONARY_MAP[key]) {
-      const ActiveComponent = DICTIONARY_MAP[key];
-      el._reactRoot.render(<ActiveComponent {...props} folder={folder} file={file} block={component} />);
-    } else {
-      el._reactRoot.render(<JinjaBlock folder={folder} file={file} block={component} props={propsRaw} />);
-    }
-  } catch (e) {
-    console.error("Mount failed:", e);
+  if (!el._reactRoot) {
+    el._reactRoot = ReactDOM.createRoot(el);
   }
+  el.setAttribute('data-react-claimed', 'true');
+
+  // 2. Check the DICTIONARY_MAP using the top-level keys
+  const key = Object.keys(props)[0];
+  
+  if (DICTIONARY_MAP[key]) {
+    const ActiveComponent = DICTIONARY_MAP[key];
+    el._reactRoot.render(<ActiveComponent {...props} folder={folder} file={file} block={component} />);
+  } else {
+    // 3. Pass the "unwrapped" data to the JinjaBlock so Flask sees it clearly
+    const cleanProps = JSON.stringify(actualData);
+    el._reactRoot.render(<JinjaBlock folder={folder} file={file} block={component} props={cleanProps} />);
+  }
+} catch (e) {
+  console.error("Mount failed:", e);
+}
 }
 
 
@@ -329,3 +331,26 @@ if (!window.__ACTIVE_SCANNER__) {
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(initSearch, 500); // Give React 500ms to "paint" the cards
 });
+
+
+window.moveSlide = function(step) {
+  const viewport = document.getElementById('slider');
+  const slides = document.querySelectorAll('.slide-item');
+  
+  if (!viewport || slides.length === 0) return;
+
+  // Initialize index if it doesn't exist
+  if (typeof window.slideIndex === 'undefined') window.slideIndex = 0;
+
+  window.slideIndex += step;
+
+  // Loop logic
+  if (window.slideIndex >= slides.length) {
+    window.slideIndex = 0;
+  } else if (window.slideIndex < 0) {
+    window.slideIndex = slides.length - 1;
+  }
+
+  const offset = window.slideIndex * -100;
+  viewport.style.transform = `translateX(${offset}%)`;
+};

@@ -1,13 +1,13 @@
 {% if content == "card" %}
     <div class="card">
-        <div class="card-icon">{{ icon }}</div>
+        <div class="card-icon">{{ props.icon }}</div>
         {# Switched to dot notation #}
-        <h3>{{ row.itemType }}</h3>
-        <p>{{ row.itemDesc }}</p>
-        <a href="/go/{{ row.item_id }}" class="card-link">View picks →</a>
+        <h3>{{ props.itemType }}</h3>
+        <p>{{ props.itemDesc }}</p>
+        <a href="/go/{{ props.item_id }}" class="card-link">View picks →</a>
     </div>
 
-{% elif content == "teste" %}
+{% elif content == "category_card" %}
     <div class="card">
         <div class="card-icon">{{ props.others.icon }}</div>
         {# Switched to dot notation #}
@@ -42,6 +42,30 @@
             </div>
         </div>
     </div>
+
+{% elif content == "slide" %}
+    <div class="promo-card-container">
+        <div class="promo-card">
+            <div class="promo-content">
+                <div class="brand-tag">PREMIUM PICK</div>
+                <h2 class="promo-title"> {{ props.name }} <br></h2>
+                <p class="promo-description">
+                    {{ props.item_desc }}
+                </p>
+
+                <div class="action-row">
+                    <a href="/go/{{ props.item_id }}" class="btn-main">Check it out</a>
+                    <a href="#details" class="btn-sub">Technical Specs</a>
+                </div>
+            </div>
+            <!-- This is where your product image lives -->
+            <div class="promo-visual">
+                <img src="{{ props.image }}" alt="{{ props.name }}">
+            </div>
+        </div>
+    </div>
+
+
 {% else %}
     <div class="divider"></div>
 {% endif %}
