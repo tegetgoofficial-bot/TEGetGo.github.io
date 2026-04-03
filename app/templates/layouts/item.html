@@ -3,20 +3,41 @@
     <button class="nav-btn prev" onclick="moveSlide(-1)">&#10094;</button>
     <button class="nav-btn next" onclick="moveSlide(1)">&#10095;</button>
 
-    <div class="slideshow-viewport" id="slider">
-        {# Your existing flexible loop goes here #}
+    <div class="slideshow-viewport" id="slider" style="transform: translateX(-100%);">
+    
+        <!-- 1. Clone of Last Item (Rendered at the start) -->
+        {% set last_item = items[-1] %}
+        <div class="slide-item">
+            <div class="react-target" 
+                data-folder="assets" 
+                data-file="card" 
+                data-component="slide" 
+                data-props='{{ {"props": last_item} | tojson | safe }}'>
+            </div>
+        </div>
+
+        <!-- 2. The Main Loop -->
         {% for props in items %}
-            {% set content = "slide" %}
             <div class="slide-item">
-                <div 
-                    class="react-target" 
+                <div class="react-target" 
                     data-folder="assets" 
                     data-file="card" 
                     data-component="slide" 
-                    data-props='{{ {"props": props} | tojson | safe }}'
-                ></div>
+                    data-props='{{ {"props": props} | tojson | safe }}'>
+                </div>
             </div>
         {% endfor %}
+
+        <!-- 3. Clone of First Item (Rendered at the end) -->
+        {% set first_item = items[0] %}
+        <div class="slide-item">
+            <div class="react-target" 
+                data-folder="assets" 
+                data-file="card" 
+                data-component="slide" 
+                data-props='{{ {"props": first_item} | tojson | safe }}'>
+            </div>
+        </div>
     </div>
 </div>
 

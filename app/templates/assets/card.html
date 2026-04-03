@@ -3,8 +3,18 @@
         <div class="card-icon">{{ props.icon }}</div>
         {# Switched to dot notation #}
         <h3>{{ props.itemType }}</h3>
-        <p>{{ props.itemDesc }}</p>
-        <a href="/go/{{ props.item_id }}" class="card-link">View picks →</a>
+        <p>
+            {{ props.itemDesc }}
+        </p>
+
+        <br>
+
+        <p>
+            <strong>Sponsored by {{ props.sponsore if props.sponsore else "Me personally" }}</strong>
+            <br>
+            We only feature products we truly believe in.
+        </p>
+        <a href="/go/{{ props.item_id }}" class="card-link" rel="{{ 'sponsored' if props.sponsore else 'nofollow' }}">View picks →</a>
     </div>
 
 {% elif content == "category_card" %}
@@ -53,8 +63,18 @@
                     {{ props.item_desc }}
                 </p>
 
+                <p class="promo-description">
+                    <strong>Sponsored by {{ props.sponsore if props.sponsore else "Me personally" }}</strong>
+                    <br>
+                    {% if props.sponsore == "Amazon" %}
+                        As an Amazon Associate, I earn from qualifying purchases.
+                    {% endif %}
+                    <br>
+                    I only feature products that I'm truly believe in.
+                </p>
+
                 <div class="action-row">
-                    <a href="/go/{{ props.item_id }}" class="btn-main">Check it out</a>
+                    <a href="/go/{{ props.item_id }}" class="btn-main" rel="{{ 'sponsored' if props.sponsore else 'nofollow' }}">Check it out</a>
                     <a href="#details" class="btn-sub">Technical Specs</a>
                 </div>
             </div>

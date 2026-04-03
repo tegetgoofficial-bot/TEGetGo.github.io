@@ -604,99 +604,120 @@ footer span { color: var(--blue); }
     background: #0a0a0a; /* Deep black for an app feel */
   }
 
-  .promo-card {
-    max-width: 1100px;
-    height: 500px; /* Fixed height to match the image side */
-    margin: 0 auto;
-    background: #161616;
-    border-radius: 32px; /* Extra round for modern UI */
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    position: relative;
-    border: 1px solid #252525;
-  }
+.promo-card {
+  max-width: 1100px;
+  height: 500px; /* Fixed height to match the image side */
+  margin: 0 auto;
+  background: #161616;
+  border-radius: 32px; /* Extra round for modern UI */
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #252525;
+}
 
-  .promo-content {
-    flex: 1;
-    padding: 60px;
-    z-index: 2;
-    overflow-y: auto;
-  }
+.promo-content {
+  flex: 1;
+  padding: 60px;
+  z-index: 2;
+  overflow-y: auto;
+}
 
-  .brand-tag {
-    color: #5b9fff;
-    font-weight: 800;
-    font-size: 0.75rem;
-    letter-spacing: 2px;
-    margin-bottom: 15px;
-  }
+.brand-tag {
+  color: #5b9fff;
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+}
 
-  .promo-title {
-    font-size: 3rem;
-    color: white;
-    line-height: 1.1;
-    margin-bottom: 20px;
-    font-weight: 700;
-  }
+.promo-title {
+  font-size: 3rem;
+  color: white;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
 
-  .promo-description {
-    color: #a0a0a0;
-    font-size: 1.1rem;
-    line-height: 1.6;
-    margin-bottom: 35px;
-    max-width: 400px;
-  }
+.promo-description {
+  color: #a0a0a0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 35px;
+  max-width: 400px;
+  max-height: 180px; 
+  overflow-y: auto;
+  padding-right: 10px;
+  
+  /* Keeps the layout clean */
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
 
-  /* The image side */
-  .promo-visual {
-    flex: 1;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: radial-gradient(circle, rgba(91, 159, 255, 0.1) 0%, rgba(0,0,0,0) 70%);
-  }
+.promo-description strong {
+  color: #5b9fff;
+  font-weight: 600;
+}
 
-  .promo-visual img {
-    max-width: 80%;
-    transform: rotate(-10deg); /* Gives it a dynamic "moving" look */
-    filter: drop-shadow(0 20px 50px rgba(0,0,0,0.5));
-  }
+/* Optional: Make the scrollbar discrete so it matches your dark UI */
+.promo-description::-webkit-scrollbar {
+  width: 4px;
+}
+.promo-description::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
 
-  /* Buttons */
-  .action-row { display: flex; gap: 15px; }
+/* The image side */
+.promo-visual {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle, rgba(91, 159, 255, 0.1) 0%, rgba(0,0,0,0) 70%);
+}
 
-  .btn-main {
-    background: #5b9fff;
-    color: white;
-    padding: 16px 32px;
-    border-radius: 12px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: 0.3s;
-  }
+.promo-visual img {
+  max-width: 80%;
+  transform: rotate(-10deg); /* Gives it a dynamic "moving" look */
+  filter: drop-shadow(0 20px 50px rgba(0,0,0,0.5));
+}
 
-  .btn-sub {
-    color: white;
-    padding: 16px 32px;
-    border: 1px solid #333;
-    border-radius: 12px;
-    text-decoration: none;
-    transition: 0.3s;
-  }
+/* Buttons */
+.action-row { display: flex; gap: 15px; }
 
-  .btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(91, 159, 255, 0.3); }
+.btn-main {
+  background: #5b9fff;
+  color: white;
+  padding: 16px 32px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+}
 
-  /* Mobile Responsive */
-  @media (max-width: 768px) {
-    .promo-card { flex-direction: column; text-align: center; }
-    .promo-content { padding: 40px 20px; }
-    .promo-visual { padding-bottom: 40px; }
-    .action-row { justify-content: center; }
-  }
+.btn-sub {
+  color: white;
+  padding: 16px 32px;
+  border: 1px solid #333;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: 0.3s;
+}
 
-  /* 1. Define the animation */
+.btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(91, 159, 255, 0.3); }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .promo-card { flex-direction: column; text-align: center; }
+  .promo-content { padding: 40px 20px; }
+  .promo-visual { padding-bottom: 40px; }
+  .action-row { justify-content: center; }
+}
+
+/* 1. Define the animation */
 @keyframes float {
   0% {
     transform: translateY(0px) rotate(-10deg); /* Start position */
@@ -804,6 +825,11 @@ footer span { color: var(--blue); }
   /* Ensure your existing promo-card fits perfectly */
   .promo-card-container { padding: 40px; }
 
+  #slider {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    width: 100%;
+  }
   .slideshow-wrapper {
     position: relative;
     width: 100%;

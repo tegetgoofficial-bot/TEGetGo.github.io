@@ -334,23 +334,40 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 window.moveSlide = function(step) {
-  const viewport = document.getElementById('slider');
-  const slides = document.querySelectorAll('.slide-item');
-  
-  if (!viewport || slides.length === 0) return;
+  let slideIndex = 1; // Start at 1 (the real first slide)
+  let isMoving = false;
 
-  // Initialize index if it doesn't exist
-  if (typeof window.slideIndex === 'undefined') window.slideIndex = 0;
+  window.moveSlide = function(step) {
+    if (isMoving) return;
+    isMoving = true;
 
-  window.slideIndex += step;
+    const viewport = document.getElementById('slider');
+    const slides = document.querySelectorAll('.slide-item');
+    
+    slideIndex += step;
 
-  // Loop logic
-  if (window.slideIndex >= slides.length) {
-    window.slideIndex = 0;
-  } else if (window.slideIndex < 0) {
-    window.slideIndex = slides.length - 1;
-  }
+    // Perform the smooth slide
+    viewport.style.transition = "transform 0.5s ease-in-out";
+    viewport.style.transform = `translateX(${-slideIndex * 100}%)`;
 
-  const offset = window.slideIndex * -100;
-  viewport.style.transform = `translateX(${offset}%)`;
+    // Listen for the end of the animation to "teleport" if needed
+    viewport.addEventListener('transitionend', function handleTransition() {
+      viewport.style.transition = "none"; // Kill animation for the jump
+
+      // If we hit the clone of the first item (at the very end)
+      if (slideIndex >= slides.length - 1) {
+        slideIndex = 1; 
+        viewport.style.transform = `translateX(-100%)`;
+      } 
+      // If we hit the clone of the last item (at the very beginning)
+      else if (slideIndex <= 0) {
+        slideIndex = slides.length - 2;
+        viewport.style.transform = `translateX(${-slideIndex * 100}%)`;
+      }
+
+      isMoving = false;
+      viewport.removeEventListener('transitionend', handleTransition);
+    }, { once: true });
+  };
+
 };

@@ -1,5 +1,5 @@
 print(">>> LOADING main.py FROM:", __file__)
-from flask import Blueprint, json, make_response, jsonify, request, render_template, redirect, abort
+from flask import Blueprint, json, make_response, jsonify, request, render_template, redirect, abort, url_for
 from jinja2 import Environment, FileSystemLoader
 from urllib.parse import urlparse
 from .. import db_mannager as dbHandler
@@ -100,8 +100,16 @@ def get_initial_data():
     })
 
 
-@main_bp.route("/api/category/<int:category_id>")
+@main_bp.route("/api/category/<path:category_id>")
 def get_category_api(category_id):
+
+    try:
+        # Try to turn the input into a number
+        id_num = int(category_id)
+    except ValueError:
+        # If it's text like "://google.com", just go home
+
+        return redirect('/')
     # Use simple lowercase for table 'item' and alias 'i'
     builder = dbHandler.QueryBuilder("item i")
     
@@ -116,14 +124,14 @@ def get_category_api(category_id):
         )
         .join("item_categories ic", "i.item_id = ic.item_id")
         .join("categories c", "c.category_id = ic.category_id")
-        .add_where(f"c.category_id = {category_id}")
+        .add_where(f"c.category_id = {id_num}")
         .build()
     )
 
     items = dbHandler.get_list(query)
     
     if not items:
-        return jsonify({"items": [], "category_name": "Category"})
+        return jsonify({"error": "Invalid ID", "items": []}), 400
 
     # Get the header name from the 'active_category' column
     display_name = items[0].get("active_category", "Category") 
@@ -135,25 +143,45 @@ def get_category_api(category_id):
 
 
 
-@main_bp.route("/go/<int:item_id>")
+@main_bp.route("/go/<path:item_id>") # Changed 'int' to 'path' to catch everything
 def redirect_link(item_id):
+    try:
+        # Try to turn the input into a number
+        id_num = int(item_id)
+    except ValueError:
+        # If it's text like "://google.com", just go home
+        return redirect('/')
+    
+
     results = dbHandler.get_list(
         fromItem_table
         .add_where(f"item_id = {item_id}")
         .build()
     )
+
+    # If the ID is invalid (no results found)
     if not results:
-        abort(404)
+        # Use the name the error suggested: 'main.home'
+        return redirect(url_for('main.home')) 
 
     item = results[0]
-    target_url = item.get("item_link") # This is safer!
+    target_url = item.get("item_link")
     
     if not target_url:
-        abort(404)
+        return redirect(url_for('main.home'))
 
-    # Use target_url here too
+    # Security check
     parsed = urlparse(target_url) 
     if parsed.scheme not in ("http", "https"):
         abort(403)
 
-    return redirect(target_url)
+    return redirect(target_url, code=307)
+
+
+@main_bp.app_errorhandler(404)
+def handle_404(e):
+    return redirect('/')
+
+@main_bp.app_errorhandler(403)
+def handle_403(e):
+    return redirect('/')
