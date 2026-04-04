@@ -56,12 +56,22 @@
 
                 {% for cat in categories %}
                     {% set cat_val = cat.main_cat|string %}
+                    
                     {% if cat_val != "0" %}
                         {% set main_id_str = main.id|string %}
+                        
+                        {# 1. Standardise the string for tagging #}
                         {% set clean_val = "@" ~ cat_val|replace(" ", "@")|replace(",", "@") ~ "@" %}
                         {% set final_val = clean_val|replace("@@", "@") %}
+                        {% set tagged_id = "@" ~ main_id_str ~ "@" %}
 
-                        {% if ("@" ~ main_id_str ~ "@" in final_val) or (main_id_str in cat_val) %}
+                        {# 2. THE FIX: Check for the tagged version FIRST. #}
+                        {# Use the raw search ONLY if the user didn't use any @ symbols in the DB #}
+                        {% if tagged_id in final_val %}
+                            {% if cat not in ns.items %}
+                                {% set ns.items = ns.items + [cat] %}
+                            {% endif %}
+                        {% elif "@" not in cat_val and main_id_str in cat_val %}
                             {% if cat not in ns.items %}
                                 {% set ns.items = ns.items + [cat] %}
                             {% endif %}
