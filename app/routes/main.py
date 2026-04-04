@@ -73,6 +73,7 @@ def add_header(response):
 # ─── TABLES ───────────────────────────────────────────────────────────────────
 fromItem_table = dbHandler.QueryBuilder("item")
 fromCategories_table = dbHandler.QueryBuilder("categories")
+fromMainCategories_table = dbHandler.QueryBuilder("main_categories")
 fromItem_Categories = dbHandler.QueryBuilder("item_categories")
 # ─── ROUTES ───────────────────────────────────────────────────────────────────
 
@@ -85,7 +86,10 @@ def home():
     categories = dbHandler.get_list(
         fromCategories_table.build()
     )
-    return render_template("index.html", items=items, categories=categories)
+    main_categories = dbHandler.get_list(
+        fromMainCategories_table.build()
+    )
+    return render_template("index.html", items=items, categories=categories, main_categories=main_categories)
 
 
 @main_bp.route("/api/initial-data")
