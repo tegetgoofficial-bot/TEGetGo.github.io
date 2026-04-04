@@ -47,7 +47,7 @@
 
 {% for main in main_categories %}
     {% if main.id|int != 0 %}
-        <section id="section-{{ main.categories }}">
+        <section id="{{ main.categories }}">
             <p class="section-label">{{ main.label }}</p>
             <h2 class="section-title">{{ main.title }}</h2>
 
