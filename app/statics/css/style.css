@@ -605,21 +605,22 @@ footer span { color: var(--blue); }
   }
 
 .promo-card {
-  max-width: 1100px;
-  height: 500px; /* Fixed height to match the image side */
-  margin: 0 auto;
+  /* 1. LOWER THE SCALE: Don't let it be 90% of the screen */
+  /* Preferred is now 75% of width, and only 45% of height */
+  width: clamp(320px, 75vw, 1100px);
+  height: clamp(500px, 50vh, 500px);
+
+  margin: 20px auto;
   background: #161616;
-  border-radius: 32px; /* Extra round for modern UI */
+  border-radius: 24px; /* Slightly tighter corners for a sharper look */
   display: flex;
   align-items: center;
-  overflow: hidden;
-  position: relative;
   border: 1px solid #252525;
 }
 
 .promo-content {
+  padding: clamp(30px, 6vw, 60px);
   flex: 1;
-  padding: 60px;
   z-index: 2;
   overflow-y: auto;
 }
@@ -632,27 +633,25 @@ footer span { color: var(--blue); }
   margin-bottom: 15px;
 }
 
+/* 3. SCALE THE TEXT (Roblox UI Style) */
 .promo-title {
-  font-size: 3rem;
-  color: white;
+  /* 2. SHRINK THE TITLE: Preferred is now 4vw instead of 8vw */
+  font-size: clamp(1.4rem, 4vw, 2.4rem); 
+  margin-bottom: 12px;
   line-height: 1.1;
-  margin-bottom: 20px;
-  font-weight: 700;
+  color: white;
 }
 
 .promo-description {
+  /* 3. TIGHTEN THE TEXT: Don't let the lines get too long */
+  font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+  line-height: 1.5;
+  max-width: 450px;
   color: #a0a0a0;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  margin-bottom: 35px;
-  max-width: 400px;
-  max-height: 180px; 
-  overflow-y: auto;
-  padding-right: 10px;
   
-  /* Keeps the layout clean */
-  margin-bottom: 20px;
-  line-height: 1.6;
+  /* Prevent the 'tower' effect by limiting max height */
+  max-height: 140px; 
+  overflow-y: auto;
 }
 
 .promo-description strong {
@@ -708,27 +707,6 @@ footer span { color: var(--blue); }
 }
 
 .btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(91, 159, 255, 0.3); }
-
-/* Mobile Responsive */
-@media (max-width: 768px) {
-  .promo-card { flex-direction: column; text-align: center; }
-  .promo-content { padding: 40px 20px; }
-  .promo-visual { padding-bottom: 40px; }
-  .action-row { justify-content: center; }
-}
-
-/* 1. Define the animation */
-@keyframes float {
-  0% {
-    transform: translateY(0px) rotate(-10deg); /* Start position */
-  }
-  50% {
-    transform: translateY(-20px) rotate(-8deg); /* Move up 20px and tilt slightly */
-  }
-  100% {
-    transform: translateY(0px) rotate(-10deg); /* Return to start */
-  }
-}
 
 /* 2. Apply it to your image */
 .promo-visual img {
@@ -856,15 +834,33 @@ footer span { color: var(--blue); }
     opacity: 1 !important;
 }
 
-
-
-
-/* Hide arrows on mobile and enable touch swiping */
-@media (max-width: 768px) {
-  .nav-btn { display: none; }
-  .slideshow-viewport {
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
+/* 1. Define the animation */
+@keyframes float {
+  0% {
+    transform: translateY(0px) rotate(-10deg); /* Start position */
   }
-  .slide-item { scroll-snap-align: start; }
+  50% {
+    transform: translateY(-20px) rotate(-8deg); /* Move up 20px and tilt slightly */
+  }
+  100% {
+    transform: translateY(0px) rotate(-10deg); /* Return to start */
+  }
+}
+
+/* Mobile Responsive Fix */
+@media (max-width: 768px) {
+  .promo-card {
+    flex-direction: column; /* Flip to vertical if screen is too skinny */
+    
+    /* On mobile, we let the height be more flexible so text doesn't 'tower' */
+    height: auto; 
+    min-height: 500px;
+    max-height: 90vh; /* Don't let it be taller than the phone screen */
+  }
+
+  .promo-content, .promo-visual {
+    width: 100%;
+    flex: none;
+    height: 50%; /* Each takes half the 'game' area */
+  }
 }

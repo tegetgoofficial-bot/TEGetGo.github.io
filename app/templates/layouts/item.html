@@ -1,46 +1,48 @@
-<div class="slideshow-wrapper">
-    <!-- Navigation Arrows -->
-    <button class="nav-btn prev" onclick="moveSlide(this, -1)">❮</button>
-    <button class="nav-btn next" onclick="moveSlide(this, 1)">❯</button>
-    <div class="slideshow-viewport" id="slider" style="transform: translateX(-100%);">
-        {% if items|length > 0 %}
-            <!-- 1. Clone of Last Item (Rendered at the start) -->
-            {% set last_item = items[-1] %}
-            <div class="slide-item">
-                <div class="react-target" 
-                    data-folder="assets" 
-                    data-file="card" 
-                    data-component="slide" 
-                    data-props='{{ {"props": last_item} | tojson | safe }}'>
-                </div>
-            </div>
-
-            <!-- 2. The Main Loop -->
-            {% for props in items %}
+<section id="slide-board">
+    <div class="slideshow-wrapper">
+        <!-- Navigation Arrows -->
+        <button class="nav-btn prev" onclick="moveSlide(this, -1)">❮</button>
+        <button class="nav-btn next" onclick="moveSlide(this, 1)">❯</button>
+        <div class="slideshow-viewport" id="slider" style="transform: translateX(-100%);">
+            {% if items|length > 0 %}
+                <!-- 1. Clone of Last Item (Rendered at the start) -->
+                {% set last_item = items[-1] %}
                 <div class="slide-item">
                     <div class="react-target" 
                         data-folder="assets" 
                         data-file="card" 
                         data-component="slide" 
-                        data-props='{{ {"props": props} | tojson | safe }}'>
+                        data-props='{{ {"props": last_item} | tojson | safe }}'>
                     </div>
                 </div>
-            {% endfor %}
-        
 
-            <!-- 3. Clone of First Item (Rendered at the end) -->
-            {% set first_item = items[0] %}
-            <div class="slide-item">
-                <div class="react-target" 
-                    data-folder="assets" 
-                    data-file="card" 
-                    data-component="slide" 
-                    data-props='{{ {"props": first_item} | tojson | safe }}'>
+                <!-- 2. The Main Loop -->
+                {% for props in items %}
+                    <div class="slide-item">
+                        <div class="react-target" 
+                            data-folder="assets" 
+                            data-file="card" 
+                            data-component="slide" 
+                            data-props='{{ {"props": props} | tojson | safe }}'>
+                        </div>
+                    </div>
+                {% endfor %}
+            
+
+                <!-- 3. Clone of First Item (Rendered at the end) -->
+                {% set first_item = items[0] %}
+                <div class="slide-item">
+                    <div class="react-target" 
+                        data-folder="assets" 
+                        data-file="card" 
+                        data-component="slide" 
+                        data-props='{{ {"props": first_item} | tojson | safe }}'>
+                    </div>
                 </div>
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
-</div>
+</section>
 
 <div class="divider"></div>
 
