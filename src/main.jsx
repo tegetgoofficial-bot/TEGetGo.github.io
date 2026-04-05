@@ -5,6 +5,11 @@ import ReactDOMServer from 'react-dom/server';
 
 
 // ----------------------
+// Global Variables
+// ----------------------
+
+
+// ----------------------
 // Helper Functions
 // ----------------------
 const isDictionary = (val) => {
@@ -165,6 +170,9 @@ const DICTIONARY_MAP = {
 
 
 function mountJinjaBlock(el) {
+  // Add this safety check at the very top
+  if (!el || !(el instanceof HTMLElement)) return; 
+  
   if (el.getAttribute('data-react-claimed') === 'true') return;
 
   const { folder, file, component, props: propsRaw } = el.dataset;
@@ -276,31 +284,28 @@ if (overlayRoot) {
 // ----------------------
 function initSearch() {
   const searchInput = document.querySelector('#searchInput');
-  // Re-select cards inside the function so it finds the ones React just made
-  const cards = document.querySelectorAll('.card'); 
+  // Check if it exists FIRST
+  if (!searchInput) return; 
 
   searchInput.addEventListener('input', () => {
     const searchValue = searchInput.value.toLowerCase().trim();
+    // Re-select cards inside the function
+    const cards = document.querySelectorAll('.card'); 
 
     cards.forEach(card => {
-      const name = card.querySelector('.card-name').textContent.toLowerCase();
+      const nameEl = card.querySelector('.card-name');
+      const name = nameEl ? nameEl.textContent.toLowerCase() : "";
       const categories = (card.dataset.category || '').toLowerCase();
-
-      const categoryList = categories ? categories.split(',').map(c => c.trim()) : [];
-
+      const categoryList = categories.split(',').map(c => c.trim());
 
       const matchesName = name.includes(searchValue);
       const matchesCategory = categoryList.some(c => c.includes(searchValue));
-      
 
-      if (matchesName || matchesCategory) {
-        card.style.display = 'block';
-      } else {
-        card.style.display = 'none';
-      }
+      card.style.display = (matchesName || matchesCategory) ? 'block' : 'none';
     });
   });
 }
+
 
 // ----------------------
 // Auto-Scanner
@@ -328,46 +333,66 @@ if (!window.__ACTIVE_SCANNER__) {
 // After Auto-Scanner
 // ----------------------
 
-window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(initSearch, 500); // Give React 500ms to "paint" the cards
+// Updated Line 332
+const rootElement = document.getElementById('root');
+
+if (rootElement) {
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<App />);
+} else {
+    // If there's no #root, we just skip it so the rest of the script (slider) works
+    console.warn("Element #root not found. Skipping main React mount.");
+}
+
+// Keep your search init here
+window.addEventListener('load', () => {
+    initSearch();
 });
 
 
-window.moveSlide = function(step) {
-  let slideIndex = 1; // Start at 1 (the real first slide)
-  let isMoving = false;
-
-  window.moveSlide = function(step) {
-    if (isMoving) return;
-    isMoving = true;
-
-    const viewport = document.getElementById('slider');
-    const slides = document.querySelectorAll('.slide-item');
+window.moveSlide = function(button, step) {
+    // 1. Find the local elements for THIS specific slider
+    const wrapper = button.closest('.slideshow-wrapper');
+    const viewport = wrapper.querySelector('.slideshow-viewport');
+    const slides = viewport.querySelectorAll('.slide-item');
     
-    slideIndex += step;
+    // 2. Get or Initialize this slider's unique state
+    // We store the index/moving state directly on the element so they don't mix up
+    if (viewport.dataset.isMoving === "true") return;
+    let currentIndex = parseInt(viewport.dataset.index) || 1;
 
-    // Perform the smooth slide
-    viewport.style.transition = "transform 0.5s ease-in-out";
-    viewport.style.transform = `translateX(${-slideIndex * 100}%)`;
+    // 3. Update the state
+    viewport.dataset.isMoving = "true";
+    currentIndex += step;
+    viewport.dataset.index = currentIndex;
 
-    // Listen for the end of the animation to "teleport" if needed
-    viewport.addEventListener('transitionend', function handleTransition() {
-      viewport.style.transition = "none"; // Kill animation for the jump
+    // 4. Perform the Move
+    viewport.style.transition = "transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)";
+    viewport.style.transform = `translateX(${-currentIndex * 100}%)`;
 
-      // If we hit the clone of the first item (at the very end)
-      if (slideIndex >= slides.length - 1) {
-        slideIndex = 1; 
-        viewport.style.transform = `translateX(-100%)`;
-      } 
-      // If we hit the clone of the last item (at the very beginning)
-      else if (slideIndex <= 0) {
-        slideIndex = slides.length - 2;
-        viewport.style.transform = `translateX(${-slideIndex * 100}%)`;
-      }
+    // 5. The Flexible Teleport
+    const teleport = () => {
+        viewport.style.transition = "none";
+        
+        const totalSlides = slides.length;
+        let newIndex = currentIndex;
 
-      isMoving = false;
-      viewport.removeEventListener('transitionend', handleTransition);
-    }, { once: true });
-  };
+        if (currentIndex >= totalSlides - 1) {
+            newIndex = 1;
+        } else if (currentIndex <= 0) {
+            newIndex = totalSlides - 2;
+        }
 
+        if (newIndex !== currentIndex) {
+            currentIndex = newIndex;
+            viewport.dataset.index = currentIndex;
+            void viewport.offsetWidth; // Force Reflow
+            viewport.style.transform = `translateX(${-currentIndex * 100}%)`;
+        }
+
+        viewport.dataset.isMoving = "false";
+        viewport.removeEventListener('transitionend', teleport);
+    };
+
+    viewport.addEventListener('transitionend', teleport, { once: true });
 };

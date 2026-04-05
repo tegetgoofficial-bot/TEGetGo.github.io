@@ -775,87 +775,96 @@ footer span { color: var(--blue); }
 .slideshow-wrapper {
     position: relative;
     width: 100%;
-    max-width: 1200px;
-    margin: auto;
-    overflow: hidden; /* Hides the items off-screen */
-  }
+    min-height: 500px; /* IMPORTANT: Match your promo-card height */
+    overflow: hidden;
+    background: #0a0a0a; /* Add a background color so it doesn't look empty */
+    display: block !important;
+    visibility: visible !important;
+}
 
-  .slideshow-viewport {
-    display: flex;
-    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); /* Smooth "App" feel */
-    gap: 0; /* Cards will be full width of the wrapper */
-  }
+.slideshow-viewport {
+  display: flex;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); /* Smooth "App" feel */
+  gap: 0; /* Cards will be full width of the wrapper */
+}
 
-  .slide-item {
-    min-width: 100%; /* Each slide takes up the full container width */
-    flex-shrink: 0;
-  }
+.slide-item {
+  min-width: 100%; /* Each slide takes up the full container width */
+  flex-shrink: 0;
+}
 
-  /* Arrow Styling */
-  /* Professional Glassmorphism Navigation */
-  .nav-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(10px);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    cursor: pointer;
-    z-index: 100;
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-  }
+/* Arrow Styling */
+/* Professional Glassmorphism Navigation */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 100;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
 
-  
-   .nav-btn:hover {
-    background: #5b9fff; /* Your brand blue */
-    border-color: #5b9fff;
-    box-shadow: 0 0 20px rgba(91, 159, 255, 0.4);
-  }
-  .prev { left: 20px; }
-  .next { right: 20px; }
 
-  /* Ensure your existing promo-card fits perfectly */
-  .promo-card-container { padding: 40px; }
+.nav-btn:hover {
+  background: #5b9fff; /* Your brand blue */
+  border-color: #5b9fff;
+  box-shadow: 0 0 20px rgba(91, 159, 255, 0.4);
+}
+.prev { left: 20px; }
+.next { right: 20px; }
+
+/* Ensure your existing promo-card fits perfectly */
+.promo-card-container { padding: 40px; }
 
   #slider {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
+  display: flex !important; /* Force items to stay in a row */
+  width: 100%; 
+  min-height: 500px; /* Match your promo-card height */
+}
+
+.slideshow-viewport {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch;
     width: 100%;
-  }
-  .slideshow-wrapper {
+    /* Force GPU acceleration to prevent "vanishing" during move */
+    transform: translateZ(0); 
+    backface-visibility: hidden;
+}
+
+.slide-item {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100%;
+    flex: 0 0 100% !important;
+    /* Ensure React content inside doesn't collapse */
+    min-height: 500px; 
     position: relative;
-    width: 100%;
-    max-width: 1200px;
-    margin: 40px auto;
-    overflow: hidden; /* This acts as the window */
-    border-radius: 32px; /* Matches your "Unreal" card style */
-  }
+    visibility: visible !important;
+    opacity: 1 !important;
+}
 
+
+
+
+/* Hide arrows on mobile and enable touch swiping */
+@media (max-width: 768px) {
+  .nav-btn { display: none; }
   .slideshow-viewport {
-    display: flex;
-    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); /* Professional smooth snap */
-    will-change: transform;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
   }
-
-  .slide-item {
-    min-width: 100%; /* Each React card takes the full width of the wrapper */
-    flex-shrink: 0;
-  }
-
-  /* Hide arrows on mobile and enable touch swiping */
-  @media (max-width: 768px) {
-    .nav-btn { display: none; }
-    .slideshow-viewport {
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-    }
-    .slide-item { scroll-snap-align: start; }
-  }
+  .slide-item { scroll-snap-align: start; }
+}
