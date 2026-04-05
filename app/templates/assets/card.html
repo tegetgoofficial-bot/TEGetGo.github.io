@@ -58,31 +58,33 @@
         <div class="promo-card">
             <div class="promo-content">
                 <div class="brand-tag">PREMIUM PICK</div>
-                <h2 class="promo-title"> {{ props.name }} <br></h2>
-                <p class="promo-description">
-                    {{ props.item_desc }}
-                </p>
+                
+                {# 1. Title: Put it on one line to avoid the 'tower' gap #}
+                <h2 class="promo-title">{{- props.name -}}</h2>
 
-                <p class="promo-description">
-                    <strong>Sponsored by {{ props.sponsore if props.sponsore else "Me personally" }}</strong>
-                    <br>
-                    {% if props.sponsore == "Amazon" %}
-                        As an Amazon Associate, I earn from qualifying purchases.
-                    {% endif %}
-                    <br>
-                </p>
+                {# 2. Description: Keep the tag and the variable on the SAME line #}
+                <p class="promo-description">{{- props.item_desc | trim | safe -}}</p>
+
+                <div class="promo-description"><strong>Sponsored by {{ props.sponsore if props.sponsore else "Me personally" -}}<br></strong>
+                {%- if props.sponsore -%}
+                    As an {{ props.sponsore }} Associate, I earn from qualifying purchases.<br>
+                {%- endif -%}
+
+                I only feature products that I truly believe in.
+                </div>
 
                 <div class="action-row">
                     <a href="/go/{{ props.item_id }}" class="btn-main" rel="{{ 'sponsored' if props.sponsore else 'nofollow' }}">Check it out</a>
                     <a href="#details" class="btn-sub">Technical Specs</a>
                 </div>
             </div>
-            <!-- This is where your product image lives -->
+            
             <div class="promo-visual">
                 <img src="{{ props.image }}" alt="{{ props.name }}">
             </div>
         </div>
     </div>
+
 
 
 {% else %}

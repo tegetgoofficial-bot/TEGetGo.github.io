@@ -633,13 +633,16 @@ footer span { color: var(--blue); }
   margin-bottom: 15px;
 }
 
-/* 3. SCALE THE TEXT (Roblox UI Style) */
 .promo-title {
-  /* 2. SHRINK THE TITLE: Preferred is now 4vw instead of 8vw */
   font-size: clamp(1.4rem, 4vw, 2.4rem); 
   margin-bottom: 12px;
   line-height: 1.1;
   color: white;
+
+  /* --- ADD THESE 3 LINES --- */
+  white-space: nowrap;      /* Force one line */
+  overflow: hidden;         /* Hide the extra text */
+  text-overflow: ellipsis;  /* Add the ... at the end */
 }
 
 .promo-description {
@@ -652,6 +655,9 @@ footer span { color: var(--blue); }
   /* Prevent the 'tower' effect by limiting max height */
   max-height: 140px; 
   overflow-y: auto;
+
+  /* Preserve whitespace and line breaks for better formatting */
+  white-space: pre-wrap; 
 }
 
 .promo-description strong {
