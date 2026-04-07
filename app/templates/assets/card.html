@@ -64,11 +64,13 @@
 
                 {# 2. Description: Keep the tag and the variable on the SAME line #}
                 <p class="promo-description">{{- props.item_desc | trim | safe -}}</p>
-
+                <br>
                 <div class="promo-description"><strong>Sponsored by {{ props.sponsore if props.sponsore else "Me personally" -}}<br></strong>
                 {%- if props.sponsore -%}
-                    As an {{ props.sponsore }} Associate, I earn from qualifying purchases.<br>
+                    As an {{ props.sponsore }} Associate, I earn from qualifying purchases.
                 {%- endif -%}
+
+                <p>Click Count: {{ props.click_count }}</p>
                 </div>
 
                 <div class="action-row">
