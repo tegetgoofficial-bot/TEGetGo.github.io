@@ -329,6 +329,70 @@ section {
     transform: scale(1.1); /* Subtle "lively" zoom effect */
 }
 
+/* Search */
+/* Container for alignment */
+.search-wrapper {
+    /* 1. MATCH THIS to your card container's width (e.g., 1200px or 90%) */
+    max-width: 1200px; 
+    margin: 40px auto 20px auto; /* Centered with space above */
+    
+    /* 2. MATCH THIS to your section padding so the edges align */
+    padding: 0 2rem; 
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: #1a1a1a; /* Match .pop-card */
+    border: 1px solid #333; /* Match .pop-card */
+    border-radius: 12px;   /* Match .pop-card */
+    padding: 6px 12px;     /* Reduced padding to remove bulk */
+    transition: all 0.2s ease;
+    max-width: 300px;      /* Prevents it from being too wide */
+    margin: 0 15px;        /* Spacing between title and button */
+}
+
+.search-box:focus-within {
+    border-color: #5b9fff; /* Match .pop-card:hover */
+}
+
+/* The Input - Smaller to fit the slim box */
+.modal-search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 14px;      /* Smaller font for a cleaner look */
+    margin-left: 8px;
+}
+
+.modal-search-input::placeholder {
+    color: #555;
+}
+
+/* Icons & Buttons inside the box */
+.search-icon {
+    font-size: 14px;
+    opacity: 0.5;
+}
+
+.clear-search {
+    background: transparent;
+    border: none;
+    color: #555;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+}
+
+.clear-search:hover {
+    color: white;
+}
+
+
 
 
 /* DIVIDER */

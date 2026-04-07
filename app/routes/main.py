@@ -156,12 +156,9 @@ def redirect_link(item_id):
         # If it's text like "://google.com", just go home
         return redirect('/')
     
-
-    results = dbHandler.get_list(
-        fromItem_table
-        .add_where(f"item_id = {item_id}")
-        .build()
-    )
+    fromItem_table.add_where(f"item_id = {item_id}")
+    
+    results = dbHandler.get_list(fromItem_table.build(reset=False))
 
     # If the ID is invalid (no results found)
     if not results:
@@ -178,6 +175,14 @@ def redirect_link(item_id):
     parsed = urlparse(target_url) 
     if parsed.scheme not in ("http", "https"):
         abort(403)
+
+    try:
+        update_sql = (fromItem_table.build_increment("click_count"))
+
+        dbHandler.get_list(update_sql)
+        
+    except Exception as e:
+        print(f"Log Error (Non-critical): {e}")
 
     return redirect(target_url, code=307)
 

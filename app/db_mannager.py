@@ -69,6 +69,20 @@ class QueryBuilder:
     def set_limit(self, n):
         self._limit = n
         return self
+    
+    # You could add this to your QueryBuilder later:
+    def add_search(self, column, term):
+        # PostgreSQL 'ILIKE' is case-insensitive search
+        self.add_where(f"{column} ILIKE '%{term}%'")
+        return self
+    
+    def reset(self):
+        self._where = []
+        self._joins = []
+        self._group_by = None
+        self._order_by = None
+        self._limit = None
+        return self
 
     # --- build ---
     def build(self, reset=True):
@@ -90,15 +104,50 @@ class QueryBuilder:
 
         # 2. Reset the 'temporary' filters so the NEXT query starts fresh
         if reset:
-            self._where = []    # VERY IMPORTANT: Clears old filters
-            self._joins = []    # Clears old joins
-            self._group_by = None
-            self._order_by = None
-            self._limit = None
-            # Leave self.table and self._columns alone if you want 
-            # this builder to always point to the same table.
+            self.reset()
         
         return query
+    
+    def build_insert(self, data_dict):
+        """Generates: INSERT INTO table (col1, col2) VALUES ('val1', 'val2')"""
+        columns = ", ".join(data_dict.keys())
+        # Handles strings by wrapping them in quotes, keeps numbers as is
+        values = ", ".join([f"'{v}'" if isinstance(v, str) else str(v) for v in data_dict.values()])
+        
+        sql = f"INSERT INTO {self.table} ({columns}) VALUES ({values}) RETURNING *;"
+        return sql
+
+    def build_update(self, updates_dict):
+        """Generates: UPDATE table SET col1 = 'val1' WHERE ..."""
+        # Ensure column names (k) are NOT prefixed with 'i.' or 'table.'
+        set_clause = ", ".join([f"{k} = '{v}'" if isinstance(v, str) else f"{k} = {v}" 
+                               for k, v in updates_dict.items()])
+        
+        # Strip alias from table name for the UPDATE clause if it exists
+        # e.g., "item i" becomes "item"
+        base_table = self.table.split()[0]
+        
+        sql = f"UPDATE {base_table} SET {set_clause}"
+        
+        if self._where:
+            sql += " WHERE " + " AND ".join(self._where)
+            self._where = [] 
+            
+        sql += " RETURNING *;"
+        return sql
+    
+    def build_increment(self, column, amount=1):
+        """Generates: UPDATE table SET column = column + 1 WHERE ..."""
+        sql = f"UPDATE {self.table} SET {column} = {column} + {amount}"
+        
+        if self._where:
+            sql += " WHERE " + " AND ".join(self._where)
+            self._where = [] 
+        
+        # REMOVE the semicolon here:
+        sql += " RETURNING *" 
+        return sql
+
 
 # ─── ACCOUNT HANDLER ─────────────────────────────────────────────────────────
 

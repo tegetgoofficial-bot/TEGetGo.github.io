@@ -17,11 +17,34 @@ const isDictionary = (val) => {
 };
 
 // ----------------------
+// Contexts (if needed in the future)
+// ----------------------
+const SearchContext = React.createContext("");
+
+const SearchProvider = ({ children }) => {
+  const [term, setTerm] = React.useState("");
+  
+  React.useEffect(() => {
+    // Listen for the 'appSearch' event from your vanilla JS input
+    const handleSearch = (e) => setTerm(e.detail.toLowerCase() || "");
+    window.addEventListener('appSearch', handleSearch);
+    return () => window.removeEventListener('appSearch', handleSearch);
+  }, []);
+
+  return (
+    <SearchContext.Provider value={term}>
+      {children}
+    </SearchContext.Provider>
+  );
+};
+
+
+// ----------------------
 // Category Overlay Component
 // ----------------------
 
 // This makes a link
-const CategoryLink = ({ id, name }) => {
+const CategoryLink = ({ id }) => {
   // Use data-on-click so React doesn't strip it during renderToString
   return (
     <a 
@@ -37,26 +60,49 @@ const CategoryLink = ({ id, name }) => {
 
 
 const CategoryOverlay = ({ data, onClose }) => {
+  const [itemSearch, setItemSearch] = useState(""); // Local search state
+
+  // Filter items based on the input
+  const filteredItems = data.items.filter(item => {
+    const term = itemSearch.toLowerCase();
+    return (item.name || "").toLowerCase().includes(term) || 
+           (item.all_tags || "").toLowerCase().includes(term);
+  });
+
   return (
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-           <h2>Results for {data.category_name}</h2>
-           <button onClick={onClose}>✕</button>
+          <h2 className="modal-title">Results for {data.category_name}</h2>
+          
+          {/* Search Input with Wrapper for styling */}
+          <div className="modal-search-wrapper">
+            <div className="search-box">
+              <span className="search-icon">🔍</span>
+              <input 
+                type="text" 
+                placeholder="Search items..." 
+                className="modal-search-input"
+                value={itemSearch}
+                onChange={(e) => setItemSearch(e.target.value)}
+                autoFocus
+              />
+              {itemSearch && (
+                <button className="clear-search" onClick={() => setItemSearch("")}>✕</button>
+              )}
+            </div>
+          </div>
+
+          <button className="modal-close-btn" onClick={onClose}>✕</button>
         </div>
 
         <div className="cards-grid">
-          {data.items.map(item => (
-            /* 
-               Instead of hardcoding the card here, 
-               let the JinjaBlock handle the "Skin" and the tags 
-            */
+          {filteredItems.map(item => (
             <JinjaBlock 
               key={item.item_id}
               folder="assets" 
               file="card" 
               block="popup_card" 
-              // Safety: Ensure all_tags exists so the split doesn't fail
               props={JSON.stringify({ ...item, all_tags: item.all_tags || "" })} 
             />
           ))}
@@ -68,10 +114,35 @@ const CategoryOverlay = ({ data, onClose }) => {
 
 
 
-const CategoryButtonGroups = ({ categories, folder, file, block }) => {
+const CategoryButtonGroups = ({ categories, folder, file, block, parentEl }) => {
+  const searchTerm = React.useContext(SearchContext);
+
+  // Filter categories based on search term
+  const filtered = categories.filter(cat => 
+    (cat.item_type || "").toLowerCase().includes(searchTerm)
+  );
+
+  // SIDE EFFECT: This reaches out of React to hide the Jinja-rendered <section>
+  React.useEffect(() => {
+    // 'parentEl' is the <div> on your page. We find the <section> it lives in.
+    const section = parentEl?.closest('section');
+    if (section) {
+      // If no matches, hide the whole section (Title + Cards)
+      section.style.display = (filtered.length === 0 && searchTerm !== "") ? 'none' : 'block';
+      
+      // Also hide the divider line after the section
+      const divider = section.nextElementSibling;
+      if (divider && divider.classList.contains('divider')) {
+        divider.style.display = (filtered.length === 0 && searchTerm !== "") ? 'none' : 'block';
+      }
+    }
+  }, [filtered.length, searchTerm, parentEl]);
+
+  if (filtered.length === 0) return null;
+  
   return (
     <>
-      {categories.map((cat) => {
+      {filtered.map((cat) => {
         const onClickLogic = `event.preventDefault(); window.dispatchCategorySelect('${cat.category_id}')`;
         const linkHtml = ReactDOMServer.renderToString(
           <CategoryLink 
@@ -170,39 +241,38 @@ const DICTIONARY_MAP = {
 
 
 function mountJinjaBlock(el) {
-  // Add this safety check at the very top
-  if (!el || !(el instanceof HTMLElement)) return; 
-  
-  if (el.getAttribute('data-react-claimed') === 'true') return;
+  if (!el || el.getAttribute('data-react-claimed') === 'true') return;
 
   const { folder, file, component, props: propsRaw } = el.dataset;
   
   try {
-  let props = propsRaw ? JSON.parse(propsRaw) : {};
-  
-  // 1. Check if the incoming data is wrapped in a "props" key
-  // This handles your <div data-props='{"props": { ... }}'>
-  const actualData = props.props ? props.props : props;
+    const props = propsRaw ? JSON.parse(propsRaw) : {};
+    const actualData = props.props ? props.props : props;
+    const key = Object.keys(props)[0];
 
-  if (!el._reactRoot) {
-    el._reactRoot = ReactDOM.createRoot(el);
-  }
-  el.setAttribute('data-react-claimed', 'true');
+    if (!el._reactRoot) {
+      el._reactRoot = ReactDOM.createRoot(el);
+    }
+    el.setAttribute('data-react-claimed', 'true');
 
-  // 2. Check the DICTIONARY_MAP using the top-level keys
-  const key = Object.keys(props)[0];
-  
-  if (DICTIONARY_MAP[key]) {
-    const ActiveComponent = DICTIONARY_MAP[key];
-    el._reactRoot.render(<ActiveComponent {...props} folder={folder} file={file} block={component} />);
-  } else {
-    // 3. Pass the "unwrapped" data to the JinjaBlock so Flask sees it clearly
-    const cleanProps = JSON.stringify(actualData);
-    el._reactRoot.render(<JinjaBlock folder={folder} file={file} block={component} props={cleanProps} />);
+    el._reactRoot.render(
+      <SearchProvider>
+        {DICTIONARY_MAP[key] ? (
+          <CategoryButtonGroups 
+            {...actualData} 
+            folder={folder} 
+            file={file} 
+            block={component} 
+            parentEl={el} /* <--- Handing the HTML element to React */
+          />
+        ) : (
+          <JinjaBlock folder={folder} file={file} block={component} props={JSON.stringify(actualData)} />
+        )}
+      </SearchProvider>
+    );
+  } catch (e) {
+    console.error("Mount failed:", e);
   }
-} catch (e) {
-  console.error("Mount failed:", e);
-}
 }
 
 
@@ -210,6 +280,7 @@ function mountJinjaBlock(el) {
 const App = () => {
   const [selectedData, setSelectedData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   
   // NEW: Store the categories from the API
   const [initialData, setInitialData] = useState({ categories: [] });
@@ -243,6 +314,12 @@ const App = () => {
         window.dispatchEvent(new Event('initialDataReady'));
       })
       .catch(err => console.error("API Error:", err));
+
+      // Listen for search input from anywhere in the window
+    const handleSearch = (e) => setSearchTerm(e.detail.toLowerCase());
+    window.addEventListener('appSearch', handleSearch);
+    
+    return () => window.removeEventListener('appSearch', handleSearch);
   }, []); // Empty array = run once on load
 
   const closeOverlay = () => {
@@ -283,28 +360,28 @@ if (overlayRoot) {
 // Search Input Logic
 // ----------------------
 function initSearch() {
-  const searchInput = document.querySelector('#searchInput');
-  // Check if it exists FIRST
-  if (!searchInput) return; 
+  const input = document.querySelector('#searchInput');
+  const clearBtn = document.querySelector('#clearSearch');
+  if (!input) return;
 
-  searchInput.addEventListener('input', () => {
-    const searchValue = searchInput.value.toLowerCase().trim();
-    // Re-select cards inside the function
-    const cards = document.querySelectorAll('.card'); 
-
-    cards.forEach(card => {
-      const nameEl = card.querySelector('.card-name');
-      const name = nameEl ? nameEl.textContent.toLowerCase() : "";
-      const categories = (card.dataset.category || '').toLowerCase();
-      const categoryList = categories.split(',').map(c => c.trim());
-
-      const matchesName = name.includes(searchValue);
-      const matchesCategory = categoryList.some(c => c.includes(searchValue));
-
-      card.style.display = (matchesName || matchesCategory) ? 'block' : 'none';
-    });
+  input.addEventListener('input', (e) => {
+    const val = e.target.value;
+    // Show/Hide "X" button
+    if (clearBtn) clearBtn.style.display = val ? 'block' : 'none';
+    
+    window.dispatchEvent(new CustomEvent('appSearch', { detail: val }));
   });
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      input.value = '';
+      clearBtn.style.display = 'none';
+      window.dispatchEvent(new CustomEvent('appSearch', { detail: '' }));
+      input.focus();
+    });
+  }
 }
+
 
 
 // ----------------------
