@@ -4,9 +4,22 @@
     {
       "src": "main.py",
       "use": "@vercel/python"
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": { "installCommand": "npm install --force" }
     }
   ],
   "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "main.py"
+    },
+    {
+      "src": "/go/(.*)",
+      "dest": "main.py"
+    },
     {
       "src": "/(.*)",
       "dest": "main.py"
