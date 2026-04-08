@@ -12,13 +12,17 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
 html { scroll-behavior: smooth; }
 
 body {
   background: var(--bg);
   color: var(--white);
   font-family: 'Syne', sans-serif;
-  overflow-x: hidden;
   cursor: default;
 }
 
@@ -179,7 +183,8 @@ nav {
 /* GLOW ORB */
 .glow-orb {
   position: absolute;
-  width: 600px; height: 600px;
+  width: 600px; 
+  height: 600px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(43,111,255,0.12) 0%, transparent 70%);
   pointer-events: none;
