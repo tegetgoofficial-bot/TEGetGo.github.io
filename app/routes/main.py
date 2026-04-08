@@ -187,7 +187,7 @@ def redirect_link(item_id):
     return redirect(target_url, code=307)
 
 
-@app.route('/health')
+@main_bp.route('/health')
 def health():
     return "OK", 200
 
