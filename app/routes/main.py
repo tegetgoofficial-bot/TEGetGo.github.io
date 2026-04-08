@@ -187,6 +187,10 @@ def redirect_link(item_id):
     return redirect(target_url, code=307)
 
 
+@app.route('/health')
+def health():
+    return "OK", 200
+
 @main_bp.app_errorhandler(404)
 def handle_404(e):
     return redirect('/')
