@@ -4,12 +4,24 @@
     {
       "src": "main.py",
       "use": "@vercel/python"
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "main.py"
+      "source": "/api/(.*)",
+      "destination": "main.py"
+    },
+    {
+      "source": "/go/(.*)",
+      "destination": "main.py"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
