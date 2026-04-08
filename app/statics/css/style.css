@@ -772,6 +772,9 @@ footer span { color: var(--blue); }
   /* Ensure it doesn't blow out the container width */
   max-width: 85%; 
   box-sizing: border-box;
+
+  white-space: normal;     /* allow wrapping */
+  min-width: 0;            /* allow shrinking inside flex/inline-flex */
 }
 .btn-main {
   background: #5b9fff;

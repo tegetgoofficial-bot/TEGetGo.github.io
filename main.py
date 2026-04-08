@@ -11,9 +11,10 @@ sys.excepthook = loud_excepthook
 
 app = create_app()
 
+app.config["PROPAGATE_EXCEPTIONS"] = True
+app.config["TRAP_HTTP_EXCEPTIONS"] = True
+app.config["EXPLAIN_TEMPLATE_LOADING"] = True
+
 if __name__ == "__main__":
-    app.config["PROPAGATE_EXCEPTIONS"] = True
-    app.config["TRAP_HTTP_EXCEPTIONS"] = True
-    app.config["EXPLAIN_TEMPLATE_LOADING"] = True
     app.config["DEBUG"] = True
     app.run(host="0.0.0.0", port=5000, debug=True)
