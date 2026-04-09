@@ -4,15 +4,18 @@ from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
 import os
 
-# This gets the path to the 'app' folder where this file lives
-base_dir = os.path.dirname(os.path.abspath(__file__))
-
-app = Flask(__name__, 
-            # Points exactly to app/templates
-            template_folder=os.path.join(base_dir, 'templates'), 
-            # Points exactly to app/statics
-            static_folder=os.path.join(base_dir, 'statics'),
-            static_url_path='/static')
+# csrf = CSRFProtect()
+def create_app():
+    load_dotenv()
+    # This gets the path to the 'app' folder where this file lives
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    app = Flask(__name__, 
+        # Points exactly to app/templates
+        template_folder=os.path.join(base_dir, 'templates'), 
+        # Points exactly to app/statics
+        static_folder=os.path.join(base_dir, 'statics'),
+        static_url_path='/static')
     app.config["PROPAGATE_EXCEPTIONS"] = True
     app.config["TRAP_HTTP_EXCEPTIONS"] = True
     app.config["EXPLAIN_TEMPLATE_LOADING"] = True
